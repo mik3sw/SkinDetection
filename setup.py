@@ -4,6 +4,7 @@ from threading import Event
 import requests
 import logging
 from rich.logging import RichHandler
+from os import remove
 
 
 from rich.progress import (
@@ -81,11 +82,15 @@ if __name__ == "__main__":
     destination = 'Dataset.zip'
     
     try:
-        log.info("Download dataset")
+        log.debug("Downloading Dataset.zip")
         download(file_id, "./")
-        log.info("Unzipping dataset")
+        log.debug("Download complete!")
+        log.debug("Unzipping dataset")
         with zipfile.ZipFile("Dataset.zip", 'r') as zip_ref:
             zip_ref.extractall()
+        log.debug("Unzipping complete!")
+        log.debug("Removing zip file")
+        remove("Dataset.zip")
         log.info("Done")
     except:
         log.critical("ERRORE durante il download")
