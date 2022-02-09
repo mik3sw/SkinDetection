@@ -11,5 +11,5 @@ tests/
 *.mp4
 *.m4v
 Dataset/
-cache/*
+cache/*.pickle
 __MACOSX/
