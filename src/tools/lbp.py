@@ -98,7 +98,7 @@ def stupid(img):
     return result
 '''
 
-def erase_colors(image, red = False, yellow = False, white = False):
+def erase_colors(image, red = False, yellow = False, white = False, orange = False):
     image_hsv=cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     output_image = image.copy()
 
@@ -115,6 +115,9 @@ def erase_colors(image, red = False, yellow = False, white = False):
     min_white = np.array([0, 0, 213])
     max_white = np.array([180, 18, 255])
 
+    min_orange = np.array([0, 167, 0])
+    max_orange = np.array([179, 255, 255])
+
     if red:
         mask = cv2.inRange(image_hsv, min_red1, max_red1)
         output_image[np.where(mask!=0)] = 0
@@ -130,6 +133,10 @@ def erase_colors(image, red = False, yellow = False, white = False):
     if white:
         mask = cv2.inRange(image_hsv, min_white, max_white)
         output_image[np.where(mask!=0)] = 0
+    if orange:
+        mask = cv2.inRange(image_hsv, min_orange, max_orange)
+        output_image[np.where(mask!=0)] = 0
+
     
     return output_image
 

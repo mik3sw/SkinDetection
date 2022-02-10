@@ -25,7 +25,13 @@ def preprocess(image):
         w = True
     else:
         w = False
+    
+    if config["preprocess"]["erase_orange"] == "True":
+        o = True
+    else:
+        o = False
+    
 
 
-    image = erase_colors(image, red=r, yellow=y, white=w)
+    image = erase_colors(image, red=r, yellow=y, white=w, orange=o)
     return image
