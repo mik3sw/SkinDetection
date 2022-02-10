@@ -12,8 +12,9 @@ from rich.console import Console
 
 from rich.logging import RichHandler
 
-from src.video import cam, single, ffmpeg_processing
+from src.video import cam, single, ffmpeg_processing, multithread
 from src.skin_classifier import SkinClassifier
+
 
 
 FORMAT = "%(message)s"
@@ -45,6 +46,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-f', '--file', help='video file to process')
 parser.add_argument('--ffmpeg', action='store_true', help='use ffmpeg library to speed up the processing')
 parser.add_argument('-i', '--info', action='store_true', help='show info')
+parser.add_argument('-m', '--multi', action='store_true', help='try multithread')
 
 def info_f():
     table = Table(title="Comandi disponibili", show_lines=True)
@@ -53,7 +55,8 @@ def info_f():
     table.add_column("Spiegazione", justify="left", style="green")
     table.add_row("HELP", "-h --help", "Mostra i comandi disponibili e come si usano")
     table.add_row("INFO", "-i --info", "Mostra questa schermata")
-    table.add_row("FFMPEG", "-f filename --ffmpeg", "Per ora funzionante solo su linux, permette di usare il multiprocessing per dividere il video in più parti e processarle singolarmente e contemporaneamente (fast processing)")
+    table.add_row("MULTITHREADS", "-f filename --multi", "Processa il video con un numero di threads uguali al numero di core (virtuali/fisici) di cui si dispone")
+    table.add_row("FFMPEG", "-f filename --ffmpeg", "Per ora funzionante solo su linux, permette di usare il multiprocessing per dividere il video in più parti e processarle singolarmente e contemporaneamente usando ffmpeg")
     table.add_row("CAMERA", "None", "Usa, se disponibile, la webcam del pc e processa frame per frame live")
     table.add_row("FILE", "-f filename", "Processa iterativamente ogni frame del file passato e restituisce un video final.mp4")
     console = Console()
@@ -67,10 +70,10 @@ def main():
     filename = args.file
     use_ffmpeg = args.ffmpeg
     info = args.info
+    multi = args.multi
     if info:
         info_f()
         return
-
     #features = ('G', 'CIEL', 'CIEA')      # vdm set
     #skin_clf = SkinClassifier(features, ds='vdm')
     config = configparser.ConfigParser()
@@ -78,8 +81,6 @@ def main():
 
     features = ('Cr', 'H', 'CIEA')      # max accuracy adv
     skin_clf = SkinClassifier(features, ds=config["classifier"]["dataset"])
-
-    
     
 
     log = logging.getLogger('rich')
@@ -91,9 +92,12 @@ def main():
         cam.run(skin_clf)
     else:
         if use_ffmpeg:
-            log.info("[yellow]Starting using multiprocessing[/] [bold red blink]Only Linux[/]", extra={"markup": True})
+            log.info("[yellow]Starting using FFMPEG[/] [bold red blink]Only Linux[/]", extra={"markup": True})
             log.info("File is: {}".format(filename))
             ffmpeg_processing.init(filename, skin_clf, ffmpeg_processing.get_rgb_background(filename))
+        if multi:
+            log.info("[bold green]Starting using threads[/]", extra={"markup": True})
+            multithread.init(filename, skin_clf)
         else:
             if Path(filename).exists():
                 log.info(f'Using {filename} as video source')
