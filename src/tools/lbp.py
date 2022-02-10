@@ -106,8 +106,12 @@ def erase_colors(image, red = False, yellow = False, white = False):
     max_red1 = np.array([179, 255, 255])
     min_red2 = np.array([0, 50, 70])
     max_red2 = np.array([9, 255, 255])
+    min_red3 = np.array([116,116,0])
+    max_red3 = np.array([255,255,255])
     min_yellow = np.array([25, 50, 70])
     max_yellow = np.array([35, 255, 255])
+    min_yellow2 = np.array([0, 150, 150])
+    max_yellow2 = np.array([255, 255, 255])
     min_white = np.array([0, 0, 213])
     max_white = np.array([180, 18, 255])
 
@@ -116,8 +120,12 @@ def erase_colors(image, red = False, yellow = False, white = False):
         output_image[np.where(mask!=0)] = 0
         mask = cv2.inRange(image_hsv, min_red2, max_red2)
         output_image[np.where(mask!=0)] = 0
+        mask = cv2.inRange(image_hsv, min_red3, max_red3)
+        output_image[np.where(mask!=0)] = 0
     if yellow:
         mask = cv2.inRange(image_hsv, min_yellow, max_yellow)
+        output_image[np.where(mask!=0)] = 0
+        mask = cv2.inRange(image_hsv, min_yellow2, max_yellow2)
         output_image[np.where(mask!=0)] = 0
     if white:
         mask = cv2.inRange(image_hsv, min_white, max_white)

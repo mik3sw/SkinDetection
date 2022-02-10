@@ -12,7 +12,7 @@ from rich.console import Console
 
 from rich.logging import RichHandler
 
-from src.video import cam, single
+from src.video import cam, single, ffmpeg_processing
 from src.skin_classifier import SkinClassifier
 
 
@@ -93,8 +93,7 @@ def main():
         if use_ffmpeg:
             log.info("[yellow]Starting using multiprocessing[/] [bold red blink]Only Linux[/]", extra={"markup": True})
             log.info("File is: {}".format(filename))
-            #src.video.ffmpeg_processing.find_wallpaper(filename)
-            #src.video.ffmpeg_processing.init(filename, skin_clf)
+            ffmpeg_processing.init(filename, skin_clf, ffmpeg_processing.get_rgb_background(filename))
         else:
             if Path(filename).exists():
                 log.info(f'Using {filename} as video source')

@@ -86,11 +86,11 @@ if __name__ == "__main__":
         log.debug("Downloading Dataset.zip")
         download(file_id, "./")
         log.debug("Download complete!")
-        log.debug("Unzipping dataset")
+        log.debug("Unzipping dataset (this might take a while")
         with zipfile.ZipFile("Dataset.zip", 'r') as zip_ref:
             zip_ref.extractall()
         log.debug("Unzipping complete!")
-        log.debug("Removing zip file")
+        log.debug("Removing temporary files and folders (this might take a while)")
         remove("Dataset.zip")
         try:
             shutil.rmtree("__MACOSX")

@@ -18,6 +18,10 @@
 
 **Obiettivo**: rilevare e segmentare le regioni di pelle umana
 
+Siamo partiti dal capire come "trovare" la pelle in un'immagine cercandola tra gli spazi colore. Tuttavia si è dimostrato essere un metodo poco preciso e abbastanza deludente nei risultati.
+
+Siamo passati quindi a
+
 
 
 ## 🔸 Classificatore e features

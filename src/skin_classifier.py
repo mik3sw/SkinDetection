@@ -32,7 +32,11 @@ class SkinClassifier:
         if clf is None:
             config = configparser.ConfigParser()
             config.read('config.ini')
-            self.clf = classifier.get_instance(features, rebuild=bool(config["classifier"]["rebuild"]), ds=ds)
+            if config['classifier']['rebuild'] == 'True':
+                reb = True
+            else:
+                reb = False
+            self.clf = classifier.get_instance(features, rebuild=reb, ds=ds)
         else:
             self.clf = clf
     

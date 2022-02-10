@@ -8,7 +8,7 @@ import subprocess as sp
 import multiprocessing as mp
 
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
-
+from src.core import frame_processor
 from src import *
 from src.skin_classifier import SkinClassifier
 import numpy as np
@@ -33,6 +33,7 @@ logging.basicConfig(
 #from main import skin_clf
 skin_clf = None
 task = None
+wallpaper = None
 frame_count_total = 0
 num_processes = 0
 
@@ -48,29 +49,23 @@ progress = Progress(
 
 
 
-def find_wallpaper(file_name):
-    wallpaper_data = []
-
-    try:
-        cap = cv2.VideoCapture(file_name)
-        j = 0
-        while True and j < 10:
-            ret, frame = cap.read()
-            j += 1
-            if ret == True:
-                wallpaper_data.append(frame)
-    except:
-        print("errore durante la ricerca dello sfondo")
-
-    avg_image = wallpaper_data[0]
-    for i in range(len(wallpaper_data)):
-        if i == 0:
-            pass
-        else:
-            alpha = 1.0/(i + 1)
-            beta = 1.0 - alpha
-            avg_image = cv2.addWeighted(wallpaper_data[i], alpha, avg_image, beta, 0.0)
-    cv2.imwrite('wallpaper.jpg', avg_image)
+def get_rgb_background(filename):
+    bg_data = []
+    cap = cv2.VideoCapture(filename)
+    for i in range(10):
+        ret, frame = cap.read()
+        if ret:
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            bg_data.append(rgb_frame)
+    cap.release()
+    
+    bg = bg_data[0]
+    for i in range(1, len(bg_data)):
+        alpha = 1.0/(i + 1)
+        beta = 1.0 - alpha
+        bg = cv2.addWeighted(bg_data[i], alpha, bg, beta, 0.0)
+    
+    return bg
 
 
 def get_video_frame_details(file_name):
@@ -83,21 +78,20 @@ def get_video_frame_details(file_name):
         count += 1
     return width, height, count
 
+
 def get_length(filename):
-    result = sp.run(["ffprobe", "-v", "error", "-show_entries",
-                             "format=duration", "-of",
-                             "default=noprint_wrappers=1:nokey=1", filename],
+    result = sp.run(["ffprobe", "-v", "error", "-show_entries","format=duration", "-of","default=noprint_wrappers=1:nokey=1", filename],
         stdout=sp.PIPE,
         stderr=sp.STDOUT)
     return float(result.stdout)
 
 
 def process_video(video_name):
-    global task, progress
+    global task, progress, wallpaper
     #carico lo sfondo
-    wallpaper = cv2.imread("wallpaper.jpg")
-    wallpaper = cv2.cvtColor(wallpaper, cv2.COLOR_BGR2RGB)
-    wallpaper = cv2.resize(wallpaper,(480,360),fx=0,fy=0, interpolation = cv2.INTER_CUBIC)
+    #wallpaper = cv2.imread("wallpaper.jpg")
+    #wallpaper = cv2.cvtColor(wallpaper, cv2.COLOR_BGR2RGB)
+    #wallpaper = cv2.resize(wallpaper,(480,360),fx=0,fy=0, interpolation = cv2.INTER_CUBIC)
 
     cap = cv2.VideoCapture(video_name)
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
@@ -109,14 +103,8 @@ def process_video(video_name):
     while True:
         ret, frame = cap.read()
         if ret == True:
-            frame = cv2.resize(frame,(480,360),fx=0,fy=0, interpolation = cv2.INTER_CUBIC)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            cloak_mask = skin_clf.extract_mask(frame)
-            cloak_mask_3d = np.dstack((cloak_mask, cloak_mask, cloak_mask))
-            cloak_removed = np.multiply(frame, 1 - cloak_mask_3d).astype(np.uint8)
-            cloak_removed = np.where(cloak_removed == 0, wallpaper, cloak_removed)
-            cloak_removed = cv2.cvtColor(cloak_removed, cv2.COLOR_BGR2RGB)
-            out.write(cloak_removed)
+            bgr_skin_replaced = frame_processor(skin_clf, frame, wallpaper)
+            out.write(bgr_skin_replaced)
             update_t()
         else:
             break
@@ -159,9 +147,12 @@ def update_t():
 
 
 
-def init(file_name, clf):
-    global skin_clf, frame_count_total, task, num_processes
+def init(file_name, clf, wall):
+    global skin_clf, frame_count_total, task, num_processes, wallpaper
     skin_clf = clf
+    wallpaper = wall
+    cv2.imshow("wall", wall)
+    cv2.waitKey(0)
     
 
     #print("starting with {}".format(file_name))
