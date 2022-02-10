@@ -1,12 +1,14 @@
+# ==============================
+#         DISCONTINUED
+# ==============================
+
 from multiprocessing import Pool
 import time
 from os import remove
 import time
-
 import cv2
 import subprocess as sp
 import multiprocessing as mp
-
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from src.core import frame_processor
 from src import *

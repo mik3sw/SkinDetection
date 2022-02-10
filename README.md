@@ -53,22 +53,29 @@ python3 setup.py
 ```
 
 Infine eseguite il programma attraverso il file <code>main.py</code>, ecco gli argomenti accettati:
+> Consigliamo di usare la flag --multi (o -m) per processare il video passato in input per un incremento sostanziale delle prestazioni.
+> 
+> Esempio: **python3 main.py -f file.mp4 --multi**
+> 
+> Esempio **python3 main.py -f file.mp4 -m**
+
 
 ```
-usage: main.py [-h] [-f FILE] [--ffmpeg] [-i]
+usage: main.py [-h] [-f FILE] [--m] [-i]
 
 == PROGETTO ELABORAZIONE DELLE IMMAGINI ==
 
 optional arguments:
   -h, --help            show this help message and exit
   -f FILE, --file FILE  video file to process
-  --ffmpeg              use ffmpeg library to speed up the processing
+  -m, --multi           try multithread
   -i, --info            show info
+  
 
 Sample usage:
 main.py                         | launch interactive cam session
 main.py -f filename             | process given file
-main.py -f filename --ffmpeg    | process given file using ffmpeg
+main.py -f filename --multi     | process given file using multithreading
+
 ```
-### ⚠️ Attenzione! ⚠️
-L'argomento **--ffmpeg è sperimentale**: utilizza la libreria ffmpeg che dovrete installare attraverso un package manager, tuttavia non tutti i sistemi sembrano supportare bene la nostra funzione, infatti **funziona solo su Linux** (testato su Arch e derivati), pertanto potete provare ad usarla ma non è garantino che funzioni. Il resto è funzionante, la lasciamo solo perchè il guadagno in performance è sostanziale.
+

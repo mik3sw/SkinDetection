@@ -12,7 +12,7 @@ from rich.console import Console
 
 from rich.logging import RichHandler
 
-from src.video import cam, single, ffmpeg_processing, multithread
+from src.video import cam, single, multithread
 from src.skin_classifier import SkinClassifier
 
 
@@ -35,7 +35,7 @@ sample_usages='''
 Sample usage:
 main.py                         | launch interactive cam session
 main.py -f filename             | process given file
-main.py -f filename --ffmpeg    | process given file using ffmpeg
+main.py -f filename --multi     | process given file using multithreading
 '''
 
 parser = argparse.ArgumentParser(
@@ -44,9 +44,9 @@ parser = argparse.ArgumentParser(
         epilog=sample_usages,
     )
 parser.add_argument('-f', '--file', help='video file to process')
-parser.add_argument('--ffmpeg', action='store_true', help='use ffmpeg library to speed up the processing')
+parser.add_argument('-m', '--multi', action='store_true', help='use multithreading')
 parser.add_argument('-i', '--info', action='store_true', help='show info')
-parser.add_argument('-m', '--multi', action='store_true', help='try multithread')
+
 
 def info_f():
     table = Table(title="Comandi disponibili", show_lines=True)
@@ -55,10 +55,9 @@ def info_f():
     table.add_column("Spiegazione", justify="left", style="green")
     table.add_row("HELP", "-h --help", "Mostra i comandi disponibili e come si usano")
     table.add_row("INFO", "-i --info", "Mostra questa schermata")
-    table.add_row("MULTITHREADS", "-f filename --multi", "Processa il video con un numero di threads uguali al numero di core (virtuali/fisici) di cui si dispone")
-    table.add_row("FFMPEG", "-f filename --ffmpeg", "Per ora funzionante solo su linux, permette di usare il multiprocessing per dividere il video in più parti e processarle singolarmente e contemporaneamente usando ffmpeg")
+    table.add_row("FILE", "-f filename", "Processa iterativamente ogni frame del file passato e restituisce un video output")
+    table.add_row("MULTITHREADS", "-f filename --multi", "Processa il video con un numero di threads uguali al numero di core (virtuali/fisici) di cui si dispone e restituisce un video output")
     table.add_row("CAMERA", "None", "Usa, se disponibile, la webcam del pc e processa frame per frame live")
-    table.add_row("FILE", "-f filename", "Processa iterativamente ogni frame del file passato e restituisce un video final.mp4")
     console = Console()
     md = Markdown(project_description)
     console.print(md)
@@ -68,9 +67,9 @@ def info_f():
 def main():
     args = parser.parse_args()
     filename = args.file
-    use_ffmpeg = args.ffmpeg
-    info = args.info
     multi = args.multi
+    info = args.info
+    
     if info:
         info_f()
         return
@@ -91,10 +90,6 @@ def main():
         log.info("Using camera as video source")
         cam.run(skin_clf)
     else:
-        if use_ffmpeg:
-            log.info("[yellow]Starting using FFMPEG[/] [bold red blink]Only Linux[/]", extra={"markup": True})
-            log.info("File is: {}".format(filename))
-            ffmpeg_processing.init(filename, skin_clf, ffmpeg_processing.get_rgb_background(filename))
         if multi:
             log.info("[bold green]Starting using threads[/]", extra={"markup": True})
             multithread.init(filename, skin_clf)
