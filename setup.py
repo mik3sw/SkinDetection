@@ -5,6 +5,7 @@ import requests
 import logging
 from rich.logging import RichHandler
 from os import remove
+import shutil
 
 
 from rich.progress import (
@@ -91,6 +92,10 @@ if __name__ == "__main__":
         log.debug("Unzipping complete!")
         log.debug("Removing zip file")
         remove("Dataset.zip")
+        try:
+            shutil.rmtree("__MACOSX")
+        except:
+            log.error("Not macOS, skipping")
         log.info("Done")
     except:
         log.critical("ERRORE durante il download")
