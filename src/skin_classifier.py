@@ -1,3 +1,4 @@
+import configparser
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -29,7 +30,9 @@ class SkinClassifier:
     def __init__(self, features, clf=None, ds='adv'):
         self.features = features    # ('G', 'H', 'A*') for example
         if clf is None:
-            self.clf = classifier.get_instance(features, rebuild=False, ds=ds)
+            config = configparser.ConfigParser()
+            config.read('config.ini')
+            self.clf = classifier.get_instance(features, rebuild=bool(config["classifier"]["rebuild"]), ds=ds)
         else:
             self.clf = clf
     
