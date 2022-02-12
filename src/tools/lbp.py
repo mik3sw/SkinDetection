@@ -4,7 +4,7 @@ import src.data.basic as basic_dataset
 import numpy as np
 import cv2
 from skimage import img_as_ubyte
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 
 
 def percentile_whitebalance(image, percentile_value): 
@@ -141,6 +141,24 @@ def erase_colors(image, red = False, yellow = False, white = False, orange = Fal
     return output_image
 
 
+def diff_mask(img, bg):
+    diff = bg.copy()
+    cv2.absdiff(bg, img, diff)
+    #converting the difference into grayscale images
+    mask = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+    #otsu thresholding
+    (T, thresh) = cv2.threshold(mask, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (21, 21))
+    thresh = cv2.dilate(thresh, kernel, iterations=10)
+    thresh = cv2.erode(thresh, kernel, iterations=5)
+    thresh = cv2.GaussianBlur(thresh, (3, 3), 0)
+
+    th = 1
+    imask =  thresh>th
+    canvas = np.zeros_like(img, np.uint8)
+    canvas[imask] = img[imask]
+    return canvas
+
 def main():
     imgs = basic_dataset.get_test_imgs()
     img = imgs[1]
@@ -152,8 +170,8 @@ def main():
     output_img = img.copy()
     output_img[np.where(mask!=0)] = 0
 
-    plt.imshow(output_img)
-    plt.show()
+    #plt.imshow(output_img)
+    #plt.show()
 
 if __name__ == "__main__":
     main()

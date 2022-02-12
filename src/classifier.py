@@ -52,6 +52,8 @@ def fetch_dataset(ds):
 
 
 def choose_features(all_features, feature_labels):
+    #log = logging.getLogger('rich')
+    #log.debug("Scelgo le features...")
     chosen_features = [all_features[f] for f in feature_labels]
     X = np.hstack(chosen_features)
     return X
@@ -59,6 +61,8 @@ def choose_features(all_features, feature_labels):
 
 def scale_down_dataset(all_features, labels, factor):
     # scaled_features = [feat[::factor] for feat in features]
+    #log = logging.getLogger('rich')
+    #log.debug("Scalo il dataset")
     scaled_all_features = {k: feature[::factor] for k, feature in all_features.items()}
     scaled_labels = labels[::factor]
     return scaled_all_features, scaled_labels
@@ -80,6 +84,8 @@ def train(clf, X, y, dbg=False):
 
 
 def get_test_instance(clf, all_features, labels, feature_labels):
+    #log = logging.getLogger('rich')
+    #log.debug("Test istance")
     X = choose_features(all_features, feature_labels)
     y = labels
     score = train(clf, X, y)
@@ -89,6 +95,8 @@ def get_test_instance(clf, all_features, labels, feature_labels):
 def get_instance(feature_labels, rebuild=False, ds='basic'):
     clf_path = Path('classifier.joblib')
     if rebuild or not clf_path.exists():
+        log = logging.getLogger('rich')
+        log.debug("Building dataset...")
         # X, y = fetch_adv_dataset() if adv else fetch_basic_dataset()
         all_features, labels = fetch_dataset(ds)
         # Scale down was used only for DecisionTree

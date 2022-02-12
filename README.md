@@ -20,19 +20,53 @@
 
 Siamo partiti dal capire come "trovare" la pelle in un'immagine cercandola tra gli spazi colore. Tuttavia si è dimostrato essere un metodo poco preciso e abbastanza deludente nei risultati.
 
-Siamo passati quindi a
+Siamo passati quindi a valutare l'idea di usare un classificatore [...]
 
 
 
 ## 🔸 Classificatore e features
 
+[...]
+
 ## 🔸 Processing del frame
+Prendiamo come esempio questo frame:
+![](docs/init.png)
+
+Le operazioni possiamo suddividerle in 3 macro-categorie:
+
+* Preprocessing
+* Processing
+* Postprocessing
+
+### Preprocessing
+Il preprocessing del frame comprende le seguenti operazioni:
+
+- Gamma correction: [serve per ...]
+- White balance: [serve per ...]
+- Erase colors: [serve per ...]
+
+### Processing
+Il processing del frame è svolto principalemente attraverso il classificatore [...]
+
+### Postprocessing
+Il postprocessing consiste nel [...] perchè [...]
+
+![](docs/processing.png)
+
+### Correzioni
+Dato che la maschera e il postprocessing rilevano anche una parte di pixel non-skin come skin nello sfondo (causate da ombre, rumore e simili)
+abbiamo aggiunto una funzione che prima di creare la maschera, fa una grossolana individuazione dei pixel "nuovi" rispetto allo sfondo (attraverso una dilate lasciamo molto margine di errore per evitare di non selezionare tutto il foreground). Questo ha come vantaggio la quasi totale eliminazione degli "artefatti" che si creano nello sfondo dei video processati.
+
+Ecco un esempio di pre-maschera
+![](docs/differences.png)
 
 ## 🔸 Risultati
 
+I risultati sono visualizzabili qui: [Video](docs/final.m4v)
+
 ## 🔸 Codice ed installazione
 
-Per prima cosa clonate la repo GitHub con:
+Per prima cosa scaricate o clonate la repo GitHub con:
 
 ```
 git clone https://github.com/mik3sw/SkinDetection.git
