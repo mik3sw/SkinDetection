@@ -70,6 +70,7 @@ def main():
     multi = args.multi
     info = args.info
     
+    
     if info:
         info_f()
         return
@@ -80,7 +81,7 @@ def main():
     
 
     log = logging.getLogger('rich')
-    log.info("Using {} database".format(config["classifier"]["dataset"]))
+    log.info("Using [bold yellow]{}[/] dataset".format(config["classifier"]["dataset"]), extra={"markup": True})
 
     if filename is None:
         log.info("Using camera as video source")

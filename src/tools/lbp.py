@@ -137,7 +137,6 @@ def erase_colors(image, red = False, yellow = False, white = False, orange = Fal
         mask = cv2.inRange(image_hsv, min_orange, max_orange)
         output_image[np.where(mask!=0)] = 0
 
-    
     return output_image
 
 
@@ -152,12 +151,12 @@ def diff_mask(img, bg):
     thresh = cv2.dilate(thresh, kernel, iterations=10)
     thresh = cv2.erode(thresh, kernel, iterations=5)
     thresh = cv2.GaussianBlur(thresh, (3, 3), 0)
-
     th = 1
     imask =  thresh>th
     canvas = np.zeros_like(img, np.uint8)
     canvas[imask] = img[imask]
     return canvas
+
 
 def main():
     imgs = basic_dataset.get_test_imgs()

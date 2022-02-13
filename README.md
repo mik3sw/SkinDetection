@@ -41,9 +41,9 @@ Le operazioni possiamo suddividerle in 3 macro-categorie:
 ### Preprocessing
 Il preprocessing del frame comprende le seguenti operazioni:
 
-- Gamma correction: [serve per ...]
-- White balance: [serve per ...]
-- Erase colors: [serve per ...]
+- Adaptive gamma correction:
+- White balance: 
+- Erase colors: 
 
 ### Processing
 Il processing del frame è svolto principalemente attraverso il classificatore [...]
@@ -53,12 +53,19 @@ Il postprocessing consiste nel [...] perchè [...]
 
 ![](docs/processing.png)
 
-### Correzioni
+### Prove e correzioni
 Dato che la maschera e il postprocessing rilevano anche una parte di pixel non-skin come skin nello sfondo (causate da ombre, rumore e simili)
-abbiamo aggiunto una funzione che prima di creare la maschera, fa una grossolana individuazione dei pixel "nuovi" rispetto allo sfondo (attraverso una dilate lasciamo molto margine di errore per evitare di non selezionare tutto il foreground). Questo ha come vantaggio la quasi totale eliminazione degli "artefatti" che si creano nello sfondo dei video processati.
+abbiamo pensato di aggiungere una funzione che prima di creare la maschera, fa una grossolana individuazione dei pixel "nuovi" rispetto allo sfondo (attraverso una dilate lasciamo molto margine di errore per evitare di non selezionare tutto il foreground). 
+
+**Vantaggi**: abbiamo verificato la quasi totale eliminazione degli "artefatti" che si creano nello sfondo dei video processati.
 
 Ecco un esempio di pre-maschera
 ![](docs/differences.png)
+
+**Contro**: Non sempre la maschera è perfetta e capita che molti pixel di pelle ne restino esclusi.
+
+**Decisione finale**: Abbiamo deciso di non usare questa funzione dato che in molti test il risultato, pur senza artefatti nello sfondo, è risultato impreciso nella segmentazione della pelle.
+
 
 ## 🔸 Risultati
 
@@ -66,50 +73,4 @@ I risultati sono visualizzabili qui: [Video](docs/final.m4v)
 
 ## 🔸 Codice ed installazione
 
-Per prima cosa scaricate o clonate la repo GitHub con:
-
-```
-git clone https://github.com/mik3sw/SkinDetection.git
-```
-
-Installate le dipendenze necessarie con:
-
-```
-cd SkinDetection
-
-pip install -r requirements.txt
-```
-
-Eseguite il file <code>setup.py</code> per scaricare il Dataset (operazione automatica). A seconda dell'harware che avete questa operazione può richiedere qualche minuto: il processo di unzipping del dataset (~500 MB) richiede tempo.
-
-```
-python3 setup.py
-```
-
-Infine eseguite il programma attraverso il file <code>main.py</code>, ecco gli argomenti accettati:
-> Consigliamo di usare la flag --multi (o -m) per processare il video passato in input per un incremento sostanziale delle prestazioni.
-> 
-> Esempio: **python3 main.py -f file.mp4 --multi**
-> 
-> Esempio **python3 main.py -f file.mp4 -m**
-
-
-```
-usage: main.py [-h] [-f FILE] [--m] [-i]
-
-== PROGETTO ELABORAZIONE DELLE IMMAGINI ==
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -f FILE, --file FILE  video file to process
-  -m, --multi           try multithread
-  -i, --info            show info
-  
-
-Sample usage:
-main.py                         | launch interactive cam session
-main.py -f filename             | process given file
-main.py -f filename --multi     | process given file using multithreading
-
-```
-
+Consultare [INSTALL.md](docs/INSTALL.md)

@@ -7,10 +7,11 @@ import src.data.basic as basic_dataset
 import src.tools.imgtools as tools
 from src.core.preprocessing import preprocess
 from src.core.postprocessing import postprocess
-#import src.stats as stats
+import src.stats as stats
 
-'''
+
 def plot_imgs_and_masks(imgs, masks, preprocessed, figure):
+    import matplotlib.pyplot as plt
     assert len(imgs) == len(masks), 'Each image must have a corresponding mask'
     cols = len(imgs)
     rows = 3
@@ -24,7 +25,7 @@ def plot_imgs_and_masks(imgs, masks, preprocessed, figure):
     for idx, mask in enumerate(masks):
         plt.subplot2grid((rows, cols), (2, idx))
         plt.imshow(mask, 'gray')
-'''
+
 
 class SkinClassifier:
     def __init__(self, features, clf=None, ds='adv'):
@@ -70,8 +71,9 @@ class SkinClassifier:
         uint8_mask = np.uint8(post)
         return uint8_mask
 
-'''
+
 def main():
+    import matplotlib.pyplot as plt
     with stats.timer('Classifier build'):
         # features = ('G', 'H', 'CIEA')
         features = ('Cr', 'H', 'CIEA')      # max accuracy
@@ -100,4 +102,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-'''
+

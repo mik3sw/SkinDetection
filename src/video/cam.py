@@ -1,5 +1,6 @@
 import cv2
 from src.core import frame_processor
+import src
 
 
 def run(skin_clf):
@@ -12,7 +13,8 @@ def run(skin_clf):
         ret_val, img = cam.read()
         img = cv2.flip(img, 1)
         bgr_skin_replaced = frame_processor.process_frame(skin_clf, img, bg)
-        cv2.imshow('ESC per uscire', bgr_skin_replaced)
+        #bgr_skin_replaced = src.tools.lbp.diff_mask(img, bg)
+        cv2.imshow('ESC to quit', bgr_skin_replaced)
         if cv2.waitKey(1) == 27: 
             break  # esc to quit
     cv2.destroyAllWindows()
@@ -25,7 +27,7 @@ def get_rgb_background():
     while True:
         ret, frame = cam.read()
         frame = cv2.flip(frame, 1)
-        cv2.imshow('Scelta Sfondo: premere \'q\' quando pronti', frame)
+        cv2.imshow('Background: press \'q\' when ready', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             wallpaper = frame
             break

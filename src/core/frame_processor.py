@@ -5,9 +5,8 @@ from src.tools import lbp
 
 def process_frame(skin_clf, img, bg):
     """Takes a BGR image (a opencv frame) and return a BGR processed image"""
-    rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) 
+    rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     canvas = lbp.diff_mask(rgb_img, bg)
-
     mask = skin_clf.extract_mask(canvas)
     mask_3d = np.dstack((mask, mask, mask))
 

@@ -114,8 +114,8 @@ def init(filename, clf):
 
     # == Stampo informazioni task ==
     log = logging.getLogger('rich')
-    log.info("Video da processare: {}\n"
-             "Frame da processare: {}".format(filename, count))
+    log.info("Video source: {}\n"
+             "Frame count: {}".format(filename, count))
     #log.info("Frame da processare: {}".format(count))
 
     # == Acquisizione Backgroung ==
@@ -125,7 +125,7 @@ def init(filename, clf):
 
     # == Creazione Threads ==
     # nota: si possono aggiungere i nomi ai Threads (name = ...)
-    log.debug("Creo {} Threads".format(thread_count))
+    log.debug("Starting {} Threads".format(thread_count))
     for x in range(0, thread_count):
         try:
             t = threading.Thread(target=worker, name = codenames[x])
@@ -164,7 +164,7 @@ def init(filename, clf):
 
     # == Scrittura video output ==
     j = 0
-    log.debug("Scrivo i frame in {}".format(out_filename))
+    log.debug("Writing frames: {}".format(out_filename))
     while j!= count:
         fr = get_ordered_frame(j)
         out.write(fr)
