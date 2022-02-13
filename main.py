@@ -88,7 +88,10 @@ def main():
 
     if filename is None:
         log.info("Using camera as video source")
-        cam.run(skin_clf)
+        try:
+            cam.run(skin_clf)
+        except:
+            log.critical("Camera not found")
     else:
         if multi:
             log.info("[bold green]Starting using threads[/]", extra={"markup": True})
