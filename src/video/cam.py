@@ -31,6 +31,5 @@ def get_rgb_background():
             break
     cam.release()
     cv2.destroyAllWindows()
-
     rgb_wallpaper = cv2.cvtColor(wallpaper, cv2.COLOR_RGB2BGR)
     return rgb_wallpaper

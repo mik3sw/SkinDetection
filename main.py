@@ -2,19 +2,15 @@ import argparse
 import configparser
 import logging
 from pathlib import Path
-#from src import core, data, tools, video
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.table import Table
 import logging
 from rich.logging import RichHandler
 from rich.console import Console
-
 from rich.logging import RichHandler
-
 from src.video import cam, single, multithread
 from src.skin_classifier import SkinClassifier
-
 
 
 FORMAT = "%(message)s"
@@ -31,12 +27,14 @@ __Partecipanti__
 3. Michele Marcucci    [851905]
 '''
 
+
 sample_usages='''
 Sample usage:
 main.py                         | launch interactive cam session
 main.py -f filename             | process given file
 main.py -f filename --multi     | process given file using multithreading
 '''
+
 
 parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -65,6 +63,8 @@ def info_f():
 
 
 def main():
+    config = configparser.ConfigParser()
+    config.read('config.ini')
     args = parser.parse_args()
     filename = args.file
     multi = args.multi
@@ -73,17 +73,13 @@ def main():
     if info:
         info_f()
         return
-    #features = ('G', 'CIEL', 'CIEA')      # vdm set
-    #skin_clf = SkinClassifier(features, ds='vdm')
-    config = configparser.ConfigParser()
-    config.read('config.ini')
 
+    
     features = ('Cr', 'H', 'CIEA')      # max accuracy adv
     skin_clf = SkinClassifier(features, ds=config["classifier"]["dataset"])
     
 
     log = logging.getLogger('rich')
-    log.info('Got logger')
     log.info("Using {} database".format(config["classifier"]["dataset"]))
 
     if filename is None:
