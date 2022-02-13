@@ -1,5 +1,5 @@
-from src.tools.agc import adaptive_gamma_correction
-from src.tools.lbp import erase_colors, white_balance
+from tools.agc import adaptive_gamma_correction
+from tools.lbp import erase_colors, white_balance
 import configparser
 
 

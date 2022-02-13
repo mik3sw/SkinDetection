@@ -2,11 +2,11 @@ from pathlib import Path
 
 import numpy as np
 
-import src.data.cache as cache
-import src.tools.imgtools as tools
+import dataset.cache as cache
+import tools.imgtools as tools
 
 
-vdm_dataset_dir = Path.cwd() / Path('Dataset/VDM_Dataset')
+vdm_dataset_dir = Path.cwd() / Path('Datasets/VDM_Dataset')
 train = vdm_dataset_dir / Path('train')
 
 

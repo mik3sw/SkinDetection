@@ -2,7 +2,7 @@
 import cv2
 import numpy as np
 import configparser
-from src.tools.lbp import adjust_mask, remove_contour
+from tools.lbp import adjust_mask, remove_contour
 
 
 '''
@@ -34,4 +34,5 @@ def postprocess(mask):
     mask = mask.astype(np.double)
     mask = adjust_mask(mask, int(config["adjust_mask"]["ellipse"]), int(config["adjust_mask"]["iteration_dilate"]), int(config["adjust_mask"]["iteration_erode"]))
     mask = remove_contour(mask, int(config["remove_contour"]["ellipse"]), int(config["remove_contour"]["iteration_dilate"]))
-    return mask
+    uint8_mask = np.uint8(mask)
+    return uint8_mask

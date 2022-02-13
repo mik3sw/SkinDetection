@@ -2,23 +2,7 @@ from math import log2, pow, exp
 
 import cv2
 import numpy as np
-#import matplotlib.pyplot as plt
 
-import src.data.basic as basic_dataset
-
-'''
-def plot_imgs_and_masks(imgs, processed, figure):
-    assert len(imgs) == len(processed), 'Each image must have a corresponding mask'
-    cols = len(imgs)
-    rows = 2
-    plt.figure(figure)
-    for idx, img in enumerate(imgs, start=1):
-        plt.subplot(int(f'{rows}{cols}{idx}'))
-        plt.imshow(img)
-    for idx, img in enumerate(processed, start=1):
-        plt.subplot(int(f'{rows}{cols}{idx+cols}'))
-        plt.imshow(img)
-'''
 
 def normalize_array(array):
     normalized = (array - array.min()) / (array.max() - array.min())
@@ -77,16 +61,3 @@ def adaptive_gamma_correction(rgb_image):
     hsv_image_processed = cv2.merge([h, s, v_processed])
     rgb_image_processed = cv2.cvtColor(hsv_image_processed, cv2.COLOR_HSV2RGB)
     return rgb_image_processed
-
-'''
-def main():
-    test_imgs = basic_dataset.get_test_imgs()
-    processed = [adaptive_gamma_correction(img) for img in test_imgs]
-
-    plot_imgs_and_masks(test_imgs, processed, figure=1)
-    plt.show()
-
-
-if __name__ == '__main__':
-    main()
-'''

@@ -2,14 +2,12 @@
 env/
 __pycache__/
 *.joblib
-*_Dataset/
 *.pickle
-tests/
 .vscode/
 *.zip
 *.mov
 *.mp4
 *.m4v
-Dataset/
-cache/*.pickle
 __MACOSX/
+Datasets/
+.cache/

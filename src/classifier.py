@@ -7,30 +7,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import accuracy_score
-#from sklearn.tree import DecisionTreeClassifier
 import numpy as np
+from rich.console import Console
 
-import src.data.advanced as adv_dataset
-import src.data.basic as basic_dataset
-import src.data.vdm as vdm_dataset
-import logging
-from rich.logging import RichHandler
-
-FORMAT = "%(message)s"
-logging.basicConfig(
-    level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
-)
+import dataset.advanced as adv_dataset
+import dataset.basic as basic_dataset
+import dataset.vdm as vdm_dataset
 
 
-# Features:
-# * color RGB
-# * color YCbCr
-# * color HSV
-# * LBP pattern
-
-# X = n sample x m features (pixel_no x [R, G, B])
-# X = [[R, G, B], ...]
-# y = [0, 1]
+console = Console()
 
 
 def fetch_dataset(ds):
@@ -52,40 +37,32 @@ def fetch_dataset(ds):
 
 
 def choose_features(all_features, feature_labels):
-    #log = logging.getLogger('rich')
-    #log.debug("Scelgo le features...")
     chosen_features = [all_features[f] for f in feature_labels]
     X = np.hstack(chosen_features)
     return X
 
 
 def scale_down_dataset(all_features, labels, factor):
-    # scaled_features = [feat[::factor] for feat in features]
-    #log = logging.getLogger('rich')
-    #log.debug("Scalo il dataset")
     scaled_all_features = {k: feature[::factor] for k, feature in all_features.items()}
     scaled_labels = labels[::factor]
     return scaled_all_features, scaled_labels
 
 
 def train(clf, X, y, dbg=False):
-    log = logging.getLogger('rich')
     start = time.time()
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
     if dbg: 
-        log.info(f'Training with {len(X_train)} samples and {len(X_train[0])} features...')
+        console.log(f'Training with {len(X_train)} samples and {len(X_train[0])} features...')
     clf.fit(X_train, y_train)
     if dbg: 
-        log.info(f'Training took {time.time()-start:.2f} s')
+        console.log(f'Training took {time.time()-start:.2f} s')
     score = accuracy_score(clf.predict(X_test), y_test)
     if dbg: 
-        log.info(f'Score: {score}')
+        console.log(f'Score: {score}')
     return score
 
 
 def get_test_instance(clf, all_features, labels, feature_labels):
-    #log = logging.getLogger('rich')
-    #log.debug("Test istance")
     X = choose_features(all_features, feature_labels)
     y = labels
     score = train(clf, X, y)
@@ -93,17 +70,12 @@ def get_test_instance(clf, all_features, labels, feature_labels):
 
 
 def get_instance(feature_labels, rebuild=False, ds='basic'):
-    clf_path = Path('classifier.joblib')
+    clf_path = Path(f'.cache/{ds}_classifier.joblib')
     if rebuild or not clf_path.exists():
-        log = logging.getLogger('rich')
-        log.debug("Building dataset...")
-        # X, y = fetch_adv_dataset() if adv else fetch_basic_dataset()
+        console.log("Fetching dataset...")
         all_features, labels = fetch_dataset(ds)
-        # Scale down was used only for DecisionTree
-        # all_features, labels = scale_down_dataset(all_features, labels, 10)
         X = choose_features(all_features, feature_labels)
         y = labels
-        # X, y = fetch_dataset(adv, feature_labels)
         clf = make_pipeline(StandardScaler(), GaussianNB())
         train(clf, X, y, dbg=True)
         dump(clf, clf_path)
@@ -115,5 +87,4 @@ def get_instance(feature_labels, rebuild=False, ds='basic'):
 if __name__ == '__main__':
     features = ('G', 'H', 'CIEL', 'CIEA')
     clf = get_instance(features, rebuild=True, ds='adv')
-    log = logging.getLogger('rich')
-    log.info(f'Classifier retrieved.')
+    console.log(f'Classifier retrieved.')

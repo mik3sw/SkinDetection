@@ -2,22 +2,23 @@ import argparse
 import configparser
 import logging
 from pathlib import Path
-from rich.console import Console
+
 from rich.markdown import Markdown
 from rich.table import Table
-import logging
 from rich.logging import RichHandler
 from rich.console import Console
-from rich.logging import RichHandler
-from src.video import cam, single, multithread
-from src.skin_classifier import SkinClassifier
+
+from video import cam, single, multithread
+from skin_classifier import SkinClassifier
 
 
-FORMAT = "%(message)s"
-logging.basicConfig(
-    level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
-)
-
+logger = logging.getLogger('my_logger')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter(fmt='%(message)s', datefmt='[%X]')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 project_description = '''
 # Progetto Elaborazione delle Immagini: The Invisible Man
@@ -74,12 +75,10 @@ def main():
         info_f()
         return
 
-    
     features = ('Cr', 'H', 'CIEA')      # max accuracy adv
     skin_clf = SkinClassifier(features, ds=config["classifier"]["dataset"])
     
-
-    log = logging.getLogger('rich')
+    log = logging.getLogger('my_logger')
     log.info("Using {} database".format(config["classifier"]["dataset"]))
 
     if filename is None:

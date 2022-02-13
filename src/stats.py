@@ -4,6 +4,10 @@ from statistics import mean
 import time
 
 from sklearn.metrics import confusion_matrix
+from rich.console import Console
+
+
+console = Console()
 
 
 @contextmanager
@@ -11,7 +15,7 @@ def timer(description):
     start = time.time()
     yield
     delta = time.time() - start
-    print(f'{description} took {delta:.4f} s')
+    console.log(f'{description} took {delta:.4f} s')
 
 
 def conf_matrix(predicted, gt):

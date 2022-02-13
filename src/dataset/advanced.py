@@ -3,11 +3,11 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-import src.data.cache as cache
-import src.tools.imgtools as tools
+import dataset.cache as cache
+import tools.imgtools as tools
 
 
-adv_dataset_dir = Path.cwd() / Path('Dataset/Advanced_Skin_Dataset')
+adv_dataset_dir = Path.cwd() / Path('Datasets/Advanced_Skin_Dataset')
 adv_gts = adv_dataset_dir / Path('GT')
 adv_original = adv_dataset_dir / Path('ORI')
 adv_skin = adv_dataset_dir / Path('SKIN')

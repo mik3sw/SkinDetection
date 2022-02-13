@@ -2,11 +2,11 @@ from pathlib import Path
 
 import numpy as np
 
-import src.data.cache as cache
-import src.tools.imgtools as tools
+import dataset.cache as cache
+import tools.imgtools as tools
 
 
-dataset_dir = Path.cwd() / Path('Dataset/Basic_Skin_Dataset')
+dataset_dir = Path.cwd() / Path('Datasets/Basic_Skin_Dataset')
 skin_path = dataset_dir / Path('skin.png')
 noskin_path = dataset_dir / Path('noskin.png')
 
