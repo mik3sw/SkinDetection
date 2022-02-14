@@ -16,6 +16,16 @@ def imread_gray(path):
     return img
 
 
+def imread_bin(path):
+    img = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    return img > 0
+
+
+def imwrite_binary(path, binary):
+    uint8_img = np.uint8(binary * 255)
+    cv2.imwrite(str(path), uint8_img)
+
+
 def get_rgb_values(rgb_img):
     r, c, ch = rgb_img.shape
     rgb_list = rgb_img.reshape((r*c, ch))

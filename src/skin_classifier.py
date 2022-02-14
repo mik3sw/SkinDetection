@@ -1,13 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 from rich.console import Console
 
 import classifier as classifier
 import dataset.basic as basic_dataset
 import tools.imgtools as tools
-from core.preprocessing import preprocess
-from core.postprocessing import postprocess
+from preprocessing import preprocess
+from postprocessing import postprocess
 import stats
 
 
