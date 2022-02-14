@@ -114,6 +114,7 @@ def main():
     # clf = GaussianProcessClassifier(random_state=0)
     # clf = SVC(kernel='poly', random_state=0)
 
+    # Choose here the features you want to test
     features = (
         # 'R', 
         'G', 
@@ -131,23 +132,27 @@ def main():
         # 'LBP_ROR'
     )
 
-    console.log(f'Testing feature combinations on {clf}')
     dataset = 'adv'
-    console.log(f'Using <{dataset}> dataset..')
+    threshold = .90
+
     all_features, labels = classifier.fetch_dataset(ds=dataset)
-    pixels_no = len(labels)
-    console.log(f'Total number of pixels: {pixels_no}')
-    skin_pixels_no = len(['a' for i in labels if i == 1])
-    # print(skin_pixels_no)
-    console.log(f'skin/total ratio: {skin_pixels_no/pixels_no:0.2f}')
     if dataset == 'adv':
         all_features, labels = classifier.scale_down_dataset(all_features, labels, 32)
+
+    pixels_no = len(labels)
+    skin_pixels_no = len(['a' for i in labels if i == 1])
     sample_no = len(all_features['R'])
+
+    console.log(f'Testing feature combinations on {clf}')
+    console.log(f'Using <{dataset}> dataset..')
+    console.log(f'Total number of pixels: {pixels_no}')
+    console.log(f'skin/total ratio: {skin_pixels_no/pixels_no:0.2f}')
     console.log(f'Dataset made of {sample_no} samples')
+    console.log(f'Threshold for analysis set at: {threshold*100} %')
+
     combinations = get_features_combinations(features)
     test_imgs, test_gts = fetch_test_data(scaledown_factor=64)
-    threshold = .90
-    console.log(f'Threshold for analysis set at: {threshold*100} %')
+    
 
 
     combos_metrics = []
