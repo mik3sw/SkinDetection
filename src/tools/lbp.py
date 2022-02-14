@@ -7,12 +7,14 @@ from skimage import img_as_ubyte
 #from matplotlib import pyplot as plt
 
 
-def percentile_whitebalance(image, percentile_value): 
+def percentile_whitebalance(image, percentile_value):
+    # sostituito con funzione nuova 
     whitebalanced = img_as_ubyte((image*1.0 / np.percentile(image, percentile_value, axis=(0, 1))).clip(0, 1))
     return whitebalanced
 
 
 def selective_wb(image): 
+    # sostituito con funzione nuova
     (n, bins) = np.histogram(image.ravel(), 256)
     r = image.shape[0]
     c = image.shape[1]
@@ -25,6 +27,7 @@ def selective_wb(image):
 
 
 def fix_masks(image):
+    # non usata in postprocessing
     image = np.uint8(image)
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     image = cv2.erode(image, kernel, iterations = 6)
@@ -34,6 +37,7 @@ def fix_masks(image):
 
 
 def adjust_mask(mask, ellipse, iteration_dilate, iteration_erode):
+    # esegue una dilate e una erode per eliminare dettagli come occhi ecc ecc
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ellipse, ellipse))
     mask = cv2.dilate(mask, kernel, iterations=iteration_dilate)
     mask = cv2.erode(mask, kernel, iterations=iteration_erode)
@@ -42,6 +46,8 @@ def adjust_mask(mask, ellipse, iteration_dilate, iteration_erode):
 
 
 def remove_contour(mask, ellipse, iteration_dilate):
+    # effettua un'ulteriore dilate per eliminare quanto 
+    # più possibile il "contorno" che si crea intorno alla maschera
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ellipse, ellipse))
     mask = cv2.dilate(mask, kernel, iterations=iteration_dilate)
     return mask
@@ -54,6 +60,7 @@ def equalize_y(image):
     return image
 
 
+# ritorna true se l'immagine è rumorosa
 def noisy(image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     hist = cv2.calcHist([image], [1], None, [256], [0, 256])
@@ -69,6 +76,7 @@ def mean_filter(image):
     return dst
 
 
+# sostituita da acg.py
 def gamma_correction(image, gamma):
 	invGamma = 1.0 / gamma
 	table = np.array([((i / 255.0) ** invGamma) * 255
@@ -77,26 +85,37 @@ def gamma_correction(image, gamma):
 
 
 def white_balance(img):
+    # Lavora con spazio colore LAB
+    # L per la luminosità e a e b per le dimensioni colore
+    # (contiene tutti i colori visibili)
     result = cv2.cvtColor(img, cv2.COLOR_RGB2LAB)
+    # L: result[:, :, 0]
+    # A: result[:, :, 1]
+    # B: result[:, :, 2]
+
+    # In opencv per le immagini a 8 bit 
+    # c'è questa configurazione default:
+    # L: L / 100 * 255
+    # A: A + 128
+    # B: B + 128  
+
+    # Trovo il valore medio dei canali A e B
     avg_a = np.average(result[:, :, 1])
     avg_b = np.average(result[:, :, 2])
+
+    # (AVG - 128) * ((L/255)*1.1)
+
+    # Ricalcolo ogni pixel
+    # il valore che abbiamo modificato è '1.1'
+    # aumentandolo l'immagine assume sempre di più
+    # colori freddi, tendenti al blu
     result[:, :, 1] = result[:, :, 1] - ((avg_a - 128) * (result[:, :, 0] / 255.0) * 1.1)
     result[:, :, 2] = result[:, :, 2] - ((avg_b - 128) * (result[:, :, 0] / 255.0) * 1.1)
+
+    # Trasformo da LAB ad RGB
     result = cv2.cvtColor(result, cv2.COLOR_LAB2RGB)
     return result
 
-'''
-def stupid(img):
-    rgb_planes = cv2.split(img)
-    result_planes = []
-    for plane in rgb_planes:
-        dilated_img = cv2.dilate(plane, np.ones((7,7), np.uint8))
-        bg_img = cv2.medianBlur(dilated_img, 21)
-        diff_img = 255 - cv2.absdiff(plane, bg_img)
-        result_planes.append(diff_img)
-    result = cv2.merge(result_planes)
-    return result
-'''
 
 def erase_colors(image, red = False, yellow = False, white = False, orange = False):
     image_hsv=cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -142,15 +161,33 @@ def erase_colors(image, red = False, yellow = False, white = False, orange = Fal
 
 def diff_mask(img, bg):
     diff = bg.copy()
+
+    # differenza tra frame e sfondo:
+    # otteniamo che dove i pixel sono uguali il valore
+    # della differenza è 0 (nero)
     cv2.absdiff(bg, img, diff)
-    #converting the difference into grayscale images
     mask = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
-    #otsu thresholding
+
+    # Attraverso un thresholding otteniamo 
+    # una sorta di maschera che ci fa capire 
+    # più o meno in che regione del frame si trovano
+    # le differenza tra frame e sfondo
+    # Quindi verosimilmente dove si trova il soggetto del video
     (T, thresh) = cv2.threshold(mask, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
+    # Adesso facciamo una dilate molto pesante 
+    # per cercare di avere una maschera il più
+    # omogenea possibile (senza buchi in mezzo)
+    # e che identifica la regione in cui si 
+    # trova il soggetto del video
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (21, 21))
     thresh = cv2.dilate(thresh, kernel, iterations=10)
+
+    # Aggiustiamo la maschera con delle erode e blur
     thresh = cv2.erode(thresh, kernel, iterations=5)
     thresh = cv2.GaussianBlur(thresh, (3, 3), 0)
+
+    # creo e ritorno la maschera a colori (RGB)
     th = 1
     imask =  thresh>th
     canvas = np.zeros_like(img, np.uint8)
@@ -159,6 +196,7 @@ def diff_mask(img, bg):
 
 
 def main():
+    # main usato solo per test
     imgs = basic_dataset.get_test_imgs()
     img = imgs[1]
 

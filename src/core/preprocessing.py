@@ -6,6 +6,10 @@ import configparser
 def preprocess(image):
     config = configparser.ConfigParser()
     config.read('config.ini')
+
+    # Controllo il file config.ini ed in base alle impostazioni
+    # esegue o meno certe operazioni di preprocessing
+
     if config["preprocess"]["gamma_correction"] == "True":
         image = adaptive_gamma_correction(image)
     if config["preprocess"]["white_balance"] == "True":
@@ -31,7 +35,5 @@ def preprocess(image):
     else:
         o = False
     
-
-
     image = erase_colors(image, red=r, yellow=y, white=w, orange=o)
     return image

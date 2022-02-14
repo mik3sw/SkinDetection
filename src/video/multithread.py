@@ -48,13 +48,6 @@ q = queue.Queue()
 final = queue.Queue()
 skin_clf = None
 bg = None
-codenames = ["Michi", "Tia", "Ele",
-            "Wall-Maria", "Wall-Rose", "Wall-Sina", 
-            "Thor", "Loki", "Odin",
-            "BMO", "Jake", "Finn",
-            "Alien", "Kayo", 
-            "Meta"
-            ]
 
 bar = Progress(
         SpinnerColumn("dots"),
@@ -127,10 +120,7 @@ def init(filename, clf):
     # nota: si possono aggiungere i nomi ai Threads (name = ...)
     log.debug("Starting {} Threads".format(thread_count))
     for x in range(0, thread_count):
-        try:
-            t = threading.Thread(target=worker, name = codenames[x])
-        except:
-            t = threading.Thread(target=worker)
+        t = threading.Thread(target=worker)
         threads.append(t)
         t.start()
         #log.debug('Started: %s' % t)

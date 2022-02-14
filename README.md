@@ -29,42 +29,66 @@ Siamo passati quindi a valutare l'idea di usare un classificatore [...]
 [...]
 
 ## 🔸 Processing del frame
-Prendiamo come esempio questo frame:
-![](docs/init.png)
 
-Le operazioni possiamo suddividerle in 3 macro-categorie:
+<img src="docs/imgs/img1.jpg", align = "right",width="300" height="200">
+Prendiamo come esempio la foto a destra: <br>le operazioni di processing possiamo suddividerle in 4 macro-categorie:
 
+* Creazione pre-maschera
 * Preprocessing
 * Processing
 * Postprocessing
 
-### Preprocessing
-Il preprocessing del frame comprende le seguenti operazioni:
+### Creazione pre-maschera
+In molti test abbiamo notato che la maschera fatta attraverso il classificatore rileva anche una parte di pixel "falsi positivi" (quindi rileva pixel non di pelle come pelle) nello sfondo. Questo è causato da ombre, rumore e simili che in fase di preprocessing non riescono a venire eliminati.
+Abbiamo quindi pensato di aggiungere una funzione (prima del preprocessing) che prima di creare la maschera, fa una grossolana individuazione dei pixel "nuovi" rispetto allo sfondo (attraverso una dilate lasciamo molto margine di errore per evitare di non selezionare tutto il foreground). 
+Quello che otteniamo è una pre-maschera, che scontorna (lasciando una sorta di aura intorno) tutto il foreground. 
 
-- Adaptive gamma correction:
-- White balance: 
-- Erase colors: 
+**Vantaggi**: abbiamo verificato la quasi totale eliminazione degli "artefatti" che si creano nello sfondo dei video processati.
+
+**Contro**: Non sempre la maschera è perfetta e capita che alcuni pixel di pelle ne restino esclusi.
+
+**Decisione finale**: Abbiamo deciso usare questa funzione dato che in molti test il risultato è abbastanza preciso ed elimina gli artefatti nello sfondo.
+
+### Preprocessing
+Il preprocessing del frame comprende le seguenti operazioni (eseguite iterativamente):
+
+**Adaptive gamma correction**
+
+Original             |  Gamma correction
+:-------------------------:|:-------------------------:
+![](docs/imgs/img1.jpg)  |  ![](docs/imgs/gamma_correction.jpg)
+
+
+**White balance**
+
+Gamma correction             |  White balance
+:-------------------------:|:-------------------------:
+![](docs/imgs/gamma_correction.jpg)  |  ![](docs/imgs/white_balance.jpg)
+
+
+**Erase colors**
+
+White balance             |  Erase colors
+:-------------------------:|:-------------------------:
+![](docs/imgs/white_balance.jpg)  |  ![](docs/imgs/erase_colors.jpg)
+
+
+
 
 ### Processing
 Il processing del frame è svolto principalemente attraverso il classificatore [...]
 
+Original                   |  Processed
+:-------------------------:|:-------------------------:
+![](docs/imgs/img1.jpg)  |  ![](docs/imgs/skin_detected_nopost.jpg)
+
 ### Postprocessing
 Il postprocessing consiste nel [...] perchè [...]
 
-![](docs/processing.png)
+Processed                  |  Postprocessing
+:-------------------------:|:-------------------------:
+![](docs/imgs/skin_detected_nopost.jpg)  |  ![](docs/imgs/skin_detected.jpg)
 
-### Prove e correzioni
-Dato che la maschera e il postprocessing rilevano anche una parte di pixel non-skin come skin nello sfondo (causate da ombre, rumore e simili)
-abbiamo pensato di aggiungere una funzione che prima di creare la maschera, fa una grossolana individuazione dei pixel "nuovi" rispetto allo sfondo (attraverso una dilate lasciamo molto margine di errore per evitare di non selezionare tutto il foreground). 
-
-**Vantaggi**: abbiamo verificato la quasi totale eliminazione degli "artefatti" che si creano nello sfondo dei video processati.
-
-Ecco un esempio di pre-maschera
-![](docs/differences.png)
-
-**Contro**: Non sempre la maschera è perfetta e capita che molti pixel di pelle ne restino esclusi.
-
-**Decisione finale**: Abbiamo deciso di non usare questa funzione dato che in molti test il risultato, pur senza artefatti nello sfondo, è risultato impreciso nella segmentazione della pelle.
 
 
 ## 🔸 Risultati
