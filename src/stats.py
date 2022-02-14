@@ -29,7 +29,13 @@ def conf_matrix(predicted, gt):
 def get_statistics(confusion_matrix):
     tn, fp, fn, tp = confusion_matrix.ravel()
     if tn == 0 or tp == 0:
-        raise ValueError('Something went really wrong')
+        return {
+            'accuracy': 0,
+            'sensitivity': 0,
+            'specifity': 0,
+            'precision': 0,
+            'miss rate': 1,
+        }
     accuracy = (tp + tn) / (tn + fp + fn + tp)      # how many were right
     sensitivity = tp / (tp + fn)                    # true positives over expected real positives
     specifity = tn / (tn + fp)                      # true negtive over expected real negatives
@@ -52,5 +58,5 @@ def get_overall_statistics(confusion_matrixes):
         for stat, value in get_statistics(cm).items():
             aggregated_stats[stat].append(value)
     overall_stats = [Stat(stat, mean(v), min(v), max(v)) 
-                        for stat, v in aggregated_stats.items()]
+                            for stat, v in aggregated_stats.items()]
     return overall_stats

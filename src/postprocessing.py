@@ -9,15 +9,13 @@ import tools.imgtools as imgtools
 
 
 
-def remove_mask_noise(mask):
+def remove_mask_noise(mask, close_iter, open_iter):
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     # little closing
-    mask = cv2.dilate(mask, kernel, iterations=2)
-    mask = cv2.erode(mask, kernel, iterations=2)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=close_iter)
     # a slightly bigger opening
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    mask = cv2.erode(mask, kernel, iterations=3)
-    mask = cv2.dilate(mask, kernel, iterations=3)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=open_iter)
     return mask
 
 
@@ -41,9 +39,10 @@ def postprocess(mask):
     config = configparser.ConfigParser()
     config.read('config.ini')
     mask = mask.astype(np.double)
-    mask = remove_mask_noise(mask)
-    mask = adjust_mask(mask, 9, 7, 7)
-    mask = remove_contour(mask, 3, 3)
+    r, c = mask.shape
+    mask = remove_mask_noise(mask, int(c/500), int(c/300))
+    mask = adjust_mask(mask, 9, int(c/130), int(c/130))
+    mask = remove_contour(mask, int(c/300), int(c/300))
     uint8_mask = np.uint8(mask)
     return uint8_mask
 

@@ -1,4 +1,5 @@
 from pathlib import Path
+from pickletools import uint8
 
 import numpy as np
 
@@ -8,6 +9,7 @@ import tools.imgtools as tools
 
 vdm_dataset_dir = Path.cwd() / Path('Datasets/VDM_Dataset')
 train = vdm_dataset_dir / Path('train')
+test_dir = vdm_dataset_dir / Path('test')
 
 
 def get_features(img):
@@ -76,3 +78,19 @@ def get_features_and_labels(use_cache=True):
         features_vectors = [features[:, i].reshape(-1, 1) for i in range(features_no)]
         cache.dump_features_and_labels(features_vectors, labels, cache_filename)
     return features_vectors, labels
+
+
+def get_imgs_and_gts():
+    imgs = []
+    gts = []
+    for test_subset in (dir for dir in test_dir.iterdir() if dir.is_dir()):
+        raw_img_gen = sorted((test_subset / Path('raw')).iterdir())
+        ann_img_gen = sorted((test_subset / Path('ann')).iterdir())
+        for raw_img_path, ann_img_path in zip(raw_img_gen, ann_img_gen):
+            if raw_img_path.suffix == '.png' and ann_img_path.suffix == '.png':
+                raw_img = tools.imread_rgb(raw_img_path)
+                ann_image = tools.imread_rgb(ann_img_path)
+                gt_mask = np.alltrue(ann_image == [255, 0, 0], axis=2)
+                imgs.append(raw_img)
+                gts.append(np.uint8(gt_mask))
+    return imgs, gts

@@ -12,6 +12,7 @@ from rich.console import Console
 
 import classifier
 import dataset.advanced as adv_dataset
+import dataset.vdm as vdm_dataset
 from skin_classifier import SkinClassifier
 import stats
 
@@ -28,14 +29,23 @@ def get_features_combinations(features):
     return combos
 
 
-def fetch_test_data(scaledown_factor):
+def fetch_sfa_test_data(scaledown_factor):
     test_imgs = list(adv_dataset.get_original_imgs())
     test_gts = list(adv_dataset.get_gt_imgs())
     assert len(test_gts) == len(test_gts)
     reduced_data = list(zip(test_imgs, test_gts))[::scaledown_factor]
     test_imgs, test_gts = zip(*reduced_data)
-    console.log(f'Fetched {len(test_imgs)} test and gt images')
+    console.log(f'Fetched {len(test_imgs)} test and gt images from SFA')
     return test_imgs, test_gts
+
+
+def fetch_vdm_test_data(scaledown_factor=1):
+    imgs, gts = vdm_dataset.get_imgs_and_gts()
+    assert len(imgs) == len(gts)
+    reduced_data = list(zip(imgs, gts))[::scaledown_factor]
+    imgs, gts = zip(*reduced_data)
+    console.log(f'Fetched {len(imgs)} test and gt images from VDM')
+    return imgs, gts
 
 
 def get_metrics(skin_clf, test_imgs, test_gts):
@@ -47,7 +57,7 @@ def get_metrics(skin_clf, test_imgs, test_gts):
 
 def print_combo_item(item):
     features, score, metrics = item
-    console.log(f'Accuracy: {score:.5f}. Features: {features}')
+    print(f'Accuracy: {score:.5f}. Features: {features}')
     for stat in metrics:
         if stat.name in ('sensitivity', 'specifity'):
             continue
@@ -125,15 +135,15 @@ def main():
         'H', 
         # 'S', 
         # 'V', 
-        'CIEL', 
+        # 'CIEL', 
         'CIEA', 
         'CIEB', 
         # 'LBP', 
         # 'LBP_ROR'
     )
 
-    dataset = 'adv'
-    threshold = .90
+    dataset = 'vdm'
+    threshold = .85
 
     all_features, labels = classifier.fetch_dataset(ds=dataset)
     if dataset == 'adv':
@@ -143,6 +153,7 @@ def main():
     skin_pixels_no = len(['a' for i in labels if i == 1])
     sample_no = len(all_features['R'])
 
+    console.rule('TESTER')
     console.log(f'Testing feature combinations on {clf}')
     console.log(f'Using <{dataset}> dataset..')
     console.log(f'Total number of pixels: {pixels_no}')
@@ -151,30 +162,42 @@ def main():
     console.log(f'Threshold for analysis set at: {threshold*100} %')
 
     combinations = get_features_combinations(features)
-    test_imgs, test_gts = fetch_test_data(scaledown_factor=64)
-    
+    test_imgs, test_gts = fetch_sfa_test_data(scaledown_factor=64)
+    vdm_imgs, vdm_gts = fetch_vdm_test_data(scaledown_factor=5)
 
+    console.rule('Pre/Post Processing Setup')
+    console.log('No Preprocessing at all')
+    console.rule()
 
-    combos_metrics = []
+    combos_metrics_sfa = []
+    combos_metrics_vdm = []
     for features in combinations:
         test_clf, score = classifier.get_test_instance(clf, all_features, labels, features)
         if score > threshold:
             skin_clf = SkinClassifier(features, clf=test_clf, ds=dataset)
-            try:
-                metrics = get_metrics(skin_clf, test_imgs, test_gts)
-                combos_metrics.append((features, score, metrics))
-                print_progress()
-            except ValueError:
-                print_progress(mark='x')
+            metrics_sfa = get_metrics(skin_clf, test_imgs, test_gts)
+            combos_metrics_sfa.append((features, score, metrics_sfa))
+            metrics_vdm = get_metrics(skin_clf, vdm_imgs, vdm_gts)
+            combos_metrics_vdm.append((features, score, metrics_vdm))
+            print_progress()
+            
         else:
             print_progress(mark='_')
     print()
 
-    miss_rate_feature = print_min_miss_rate(combos_metrics)
-    accuracy_feature = print_max_accuracy(combos_metrics)
-    precision_feature = print_max_precision(combos_metrics)
-    to_exclude = set([miss_rate_feature, accuracy_feature, precision_feature])
-    print_test_statistics(combos_metrics, to_exclude)
+    console.rule('SFA GTs Report')
+    miss_rate_feature_sfa = print_min_miss_rate(combos_metrics_sfa)
+    accuracy_feature_sfa = print_max_accuracy(combos_metrics_sfa)
+    precision_feature_sfa = print_max_precision(combos_metrics_sfa)
+    to_exclude_sfa = set([miss_rate_feature_sfa, accuracy_feature_sfa, precision_feature_sfa])
+    print_test_statistics(combos_metrics_sfa, to_exclude_sfa)
+
+    console.rule('VDM GTs Report')
+    miss_rate_feature_vdm = print_min_miss_rate(combos_metrics_vdm)
+    accuracy_feature_vdm = print_max_accuracy(combos_metrics_vdm)
+    precision_feature_vdm = print_max_precision(combos_metrics_vdm)
+    to_exclude_vdm = set([miss_rate_feature_vdm, accuracy_feature_vdm, precision_feature_vdm])
+    print_test_statistics(combos_metrics_vdm, to_exclude_vdm)
 
 
 if __name__ == '__main__':

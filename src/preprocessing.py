@@ -10,19 +10,19 @@ import matplotlib.pyplot as plt
 
 
 def preprocess(image):
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    if config["preprocess"]["gamma_correction"] == "True":
-        image = adaptive_gamma_correction(image)
-    if config["preprocess"]["white_balance"] == "True":
-        image = white_balance(image)
+    # config = configparser.ConfigParser()
+    # config.read('config.ini')
+    # if config["preprocess"]["gamma_correction"] == "True":
+    #     image = adaptive_gamma_correction(image)
+    # if config["preprocess"]["white_balance"] == "True":
+    #     image = white_balance(image)
     
-    r = config["preprocess"]["erase_red"] == "True" 
-    y = config["preprocess"]["erase_yellow"] == "True"
-    w = config["preprocess"]["erase_white"] == "True"
-    o = config["preprocess"]["erase_orange"] == "True"
+    # r = config["preprocess"]["erase_red"] == "True" 
+    # y = config["preprocess"]["erase_yellow"] == "True"
+    # w = config["preprocess"]["erase_white"] == "True"
+    # o = config["preprocess"]["erase_orange"] == "True"
     
-    image = erase_colors(image, red=r, yellow=y, white=w, orange=o)
+    # image = erase_colors(image, red=r, yellow=y, white=w, orange=o)
     return image
 
 
