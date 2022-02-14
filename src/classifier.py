@@ -48,24 +48,21 @@ def scale_down_dataset(all_features, labels, factor):
     return scaled_all_features, scaled_labels
 
 
-def train(clf, X, y, dbg=False):
+def train(clf, X, y, dbg=True):
     start = time.time()
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
-    if dbg: 
-        console.log(f'Training with {len(X_train)} samples and {len(X_train[0])} features...')
+    if dbg: console.log(f'Training with {len(X_train)} samples and {len(X_train[0])} features...')
     clf.fit(X_train, y_train)
-    if dbg: 
-        console.log(f'Training took {time.time()-start:.2f} s')
+    if dbg: console.log(f'Training took {time.time()-start:.2f} s')
     score = accuracy_score(clf.predict(X_test), y_test)
-    if dbg: 
-        console.log(f'Score: {score}')
+    if dbg: console.log(f'Score: {score}')
     return score
 
 
 def get_test_instance(clf, all_features, labels, feature_labels):
     X = choose_features(all_features, feature_labels)
     y = labels
-    score = train(clf, X, y)
+    score = train(clf, X, y, dbg=False)
     return clf, score
 
 
@@ -77,7 +74,7 @@ def get_instance(feature_labels, rebuild=False, ds='basic'):
         X = choose_features(all_features, feature_labels)
         y = labels
         clf = make_pipeline(StandardScaler(), GaussianNB())
-        train(clf, X, y, dbg=True)
+        train(clf, X, y)
         dump(clf, clf_path)
     else:
         clf = load(clf_path)

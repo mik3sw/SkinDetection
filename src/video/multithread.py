@@ -1,7 +1,7 @@
 import logging
 import time
 import cv2
-from src.core.frame_processor import process_frame
+from core.frame_processor import process_frame
 from rich.progress import Progress
 from rich.progress import (
     BarColumn,

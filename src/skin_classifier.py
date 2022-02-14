@@ -33,10 +33,10 @@ def plot_imgs_and_masks(imgs, masks, preprocessed, postprocessed, figure):
 
 
 class SkinClassifier:
-    def __init__(self, features, clf=None, ds='adv'):
+    def __init__(self, features, clf=None, ds='adv', rebuild=True):
         self.features = features    # ('G', 'H', 'A*') for example
         if clf is None:
-            self.clf = classifier.get_instance(features, rebuild=True, ds=ds)
+            self.clf = classifier.get_instance(features, rebuild=rebuild, ds=ds)
         else:
             self.clf = clf
     
@@ -74,13 +74,18 @@ class SkinClassifier:
 
 def main():
     with stats.timer('Classifier build'):
+        # ----- SFA --------
         # features = ('G', 'H', 'CIEA')
-        features = ('Cr', 'H', 'CIEA')      # max accuracy
+        # features = ('Cr', 'H', 'CIEA')      # max accuracy
         # features = ('G', 'Cr', 'CIEA')      # max precision
-        # features = ('H', 'CIEL')      # max accuracy DT
+        features = ('H', 'CIEA', 'CIEB')      # max accuracy DT
+        # ----- VDM --------
         # features = ('G', 'CIEL', 'CIEA')      # vdm set
-        console.log(f'Skin Classifier based on <adv> dataset')
-        skin_clf = SkinClassifier(features, ds='adv')
+        # features = ('G', 'Cr', 'CIEL', 'CIEA')   # vdm max precision/accuracy
+        features = ('G', 'Cr', 'CIEA', 'CIEB')
+
+        console.log(f'Skin Classifier based on <vdm> dataset')
+        skin_clf = SkinClassifier(features, ds='vdm')
 
     test_imgs = basic_dataset.get_test_imgs()
     preprocessed_imgs = [preprocess(img) for img in test_imgs]

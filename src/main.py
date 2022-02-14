@@ -1,24 +1,17 @@
 import argparse
 import configparser
-import logging
 from pathlib import Path
 
 from rich.markdown import Markdown
 from rich.table import Table
-from rich.logging import RichHandler
 from rich.console import Console
 
 from video import cam, single, multithread
 from skin_classifier import SkinClassifier
 
 
-logger = logging.getLogger('my_logger')
-logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter(fmt='%(message)s', datefmt='[%X]')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+console = Console()
+
 
 project_description = '''
 # Progetto Elaborazione delle Immagini: The Invisible Man
@@ -57,7 +50,6 @@ def info_f():
     table.add_row("FILE", "-f filename", "Processa iterativamente ogni frame del file passato e restituisce un video output")
     table.add_row("MULTITHREADS", "-f filename --multi", "Processa il video con un numero di threads uguali al numero di core (virtuali/fisici) di cui si dispone e restituisce un video output")
     table.add_row("CAMERA", "None", "Usa, se disponibile, la webcam del pc e processa frame per frame live")
-    console = Console()
     md = Markdown(project_description)
     console.print(md)
     console.print(table)
@@ -75,28 +67,31 @@ def main():
         info_f()
         return
 
-    features = ('Cr', 'H', 'CIEA')      # max accuracy adv
-    skin_clf = SkinClassifier(features, ds=config["classifier"]["dataset"])
+    dataset = 'vdm'     # 'vdm' or 'adv'
+    if dataset == 'vdm':
+        features = ('G', 'Cr', 'CIEA', 'CIEB')
+    else:
+        features = ('H', 'CIEA', 'CIEB')
+    skin_clf = SkinClassifier(features, ds=dataset, rebuild=False)
     
-    log = logging.getLogger('my_logger')
-    log.info("Using {} database".format(config["classifier"]["dataset"]))
+    console.log(f'Using {dataset} dataset')
 
     if filename is None:
-        log.info("Using camera as video source")
+        console.log("Using camera as video source")
         try:
             cam.run(skin_clf)
         except:
-            log.critical("Camera not found")
+            console.log("Camera not found")
     else:
         if multi:
-            log.info("[bold green]Starting using threads[/]", extra={"markup": True})
+            console.log("[bold green]Starting using threads[/]", extra={"markup": True})
             multithread.init(filename, skin_clf)
         else:
             if Path(filename).exists():
-                log.info(f'Using {filename} as video source')
+                console.log(f'Using {filename} as video source')
                 single.run(filename, skin_clf)
             else:
-                log.critical('File not found!')
+                console.log('File not found!')
 
 
 if __name__ == '__main__':

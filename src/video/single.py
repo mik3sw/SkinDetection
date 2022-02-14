@@ -11,7 +11,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from src.core.frame_processor import process_frame
+from core.frame_processor import process_frame
 
 
 

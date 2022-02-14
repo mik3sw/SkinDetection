@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from src.tools import lbp
+from tools import lbp
 
 
 def process_frame(skin_clf, img, bg):

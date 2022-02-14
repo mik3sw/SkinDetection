@@ -2,17 +2,21 @@ import itertools
 
 #from sklearn.ensemble import RandomForestClassifier
 #from sklearn.gaussian_process import GaussianProcessClassifier
-#from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB
 #from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 #from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
+from rich.console import Console
 
 import classifier
-import src.data.advanced as adv_dataset
-from src.skin_classifier import SkinClassifier
-import stats as stats
+import dataset.advanced as adv_dataset
+from skin_classifier import SkinClassifier
+import stats
+
+
+console = Console()
 
 
 def get_features_combinations(features):
@@ -20,7 +24,7 @@ def get_features_combinations(features):
     for lenght in range(1, len(features)+1):
         for combo in itertools.combinations(features, lenght):
             combos.append(combo)
-    print(f'[*] Got {len(combos)} different combinations of features')
+    console.log(f'Got {len(features)} features and {len(combos)} combinations')
     return combos
 
 
@@ -30,7 +34,7 @@ def fetch_test_data(scaledown_factor):
     assert len(test_gts) == len(test_gts)
     reduced_data = list(zip(test_imgs, test_gts))[::scaledown_factor]
     test_imgs, test_gts = zip(*reduced_data)
-    print(f'[*] Fetched {len(test_imgs)} test and gt images')
+    console.log(f'Fetched {len(test_imgs)} test and gt images')
     return test_imgs, test_gts
 
 
@@ -43,14 +47,16 @@ def get_metrics(skin_clf, test_imgs, test_gts):
 
 def print_combo_item(item):
     features, score, metrics = item
-    print(f'Accuracy: {score:.5f}. Features: {features}')
+    console.log(f'Accuracy: {score:.5f}. Features: {features}')
     for stat in metrics:
+        if stat.name in ('sensitivity', 'specifity'):
+            continue
         print(f'    {stat.name:<11} =>  ', end='')
         print(f'{stat.mean:.4f} | {stat.min:.4f} | {stat.max:.4f}')
 
 
-def print_test_statistics(combos_metrics, to_exclude, top_n=10):
-    print(f'[+] Top-{top_n} other features and scores:')
+def print_test_statistics(combos_metrics, to_exclude, top_n=5):
+    console.rule(f'Top-{top_n} other features and scores:')
     combos_sorted_desc = sorted(combos_metrics, key=lambda triple: triple[1], reverse=True)
     for item in combos_sorted_desc[:top_n]:
         if item[0] not in to_exclude:
@@ -65,7 +71,7 @@ def print_min_miss_rate(combos_metrics):
         if mean_miss_rate < max_miss_rate:
             max_miss_rate = mean_miss_rate
             min_item = item
-    print('[+] Minimal mean miss rate found with:')
+    console.rule('Minimal mean miss rate found with:')
     print_combo_item(min_item)
     return min_item[0]
 
@@ -78,7 +84,7 @@ def print_max_accuracy(combos_metrics):
         if mean_accuracy > min_accuracy:
             min_accuracy = mean_accuracy
             max_item = item
-    print('[+] Max mean accuracy found with:')
+    console.rule('Max mean accuracy found with:')
     print_combo_item(max_item)
     return max_item[0]
 
@@ -91,7 +97,7 @@ def print_max_precision(combos_metrics):
         if mean_precision > min_precision:
             min_precision = mean_precision
             max_item = item
-    print('[+] Max mean precision found with:')
+    console.rule('Max mean precision found with')
     print_combo_item(max_item)
     return max_item[0]
 
@@ -100,10 +106,9 @@ def print_progress(mark='.'):
     print(mark, end='', flush=True)
 
 
-
 def main():
-    # clf = make_pipeline(StandardScaler(), GaussianNB())
-    clf = make_pipeline(StandardScaler(), DecisionTreeClassifier())
+    clf = make_pipeline(StandardScaler(), GaussianNB())
+    # clf = make_pipeline(StandardScaler(), DecisionTreeClassifier())
     # clf = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=3))
     # clf = RandomForestClassifier(max_depth=2, random_state=0)
     # clf = GaussianProcessClassifier(random_state=0)
@@ -114,41 +119,42 @@ def main():
         'G', 
         # 'B', 
         # 'Y', 
-       'Cr', 
+        'Cr', 
         # 'Cb', 
         'H', 
         # 'S', 
         # 'V', 
         'CIEL', 
         'CIEA', 
-        # 'CIEB', 
+        'CIEB', 
         # 'LBP', 
         # 'LBP_ROR'
     )
 
-    print('[+] Testing feature combinations on Scaled Gaussian Classifier..')
-    dataset = 'vdm'
-    print(f'[+] Using <{dataset}> datatset..')
+    console.log(f'Testing feature combinations on {clf}')
+    dataset = 'adv'
+    console.log(f'Using <{dataset}> dataset..')
     all_features, labels = classifier.fetch_dataset(ds=dataset)
     pixels_no = len(labels)
-    print(pixels_no)
+    console.log(f'Total number of pixels: {pixels_no}')
     skin_pixels_no = len(['a' for i in labels if i == 1])
-    print(skin_pixels_no)
-    print(f'ratio: {skin_pixels_no/pixels_no:0.2f}')
-    # all_features, labels = classifier.scale_down_dataset(all_features, labels, 32)
+    # print(skin_pixels_no)
+    console.log(f'skin/total ratio: {skin_pixels_no/pixels_no:0.2f}')
+    if dataset == 'adv':
+        all_features, labels = classifier.scale_down_dataset(all_features, labels, 32)
     sample_no = len(all_features['R'])
-    print(f'[+] Dataset made of {sample_no} samples')
+    console.log(f'Dataset made of {sample_no} samples')
     combinations = get_features_combinations(features)
     test_imgs, test_gts = fetch_test_data(scaledown_factor=64)
+    threshold = .90
+    console.log(f'Threshold for analysis set at: {threshold*100} %')
 
 
     combos_metrics = []
     for features in combinations:
         test_clf, score = classifier.get_test_instance(clf, all_features, labels, features)
-        if score > .90:
-            # we're only interested in classifiers with an accuracy > 90 %
-            # print_progress(mark='P')
-            skin_clf = SkinClassifier(features, clf=test_clf)
+        if score > threshold:
+            skin_clf = SkinClassifier(features, clf=test_clf, ds=dataset)
             try:
                 metrics = get_metrics(skin_clf, test_imgs, test_gts)
                 combos_metrics.append((features, score, metrics))
@@ -164,6 +170,7 @@ def main():
     precision_feature = print_max_precision(combos_metrics)
     to_exclude = set([miss_rate_feature, accuracy_feature, precision_feature])
     print_test_statistics(combos_metrics, to_exclude)
+
 
 if __name__ == '__main__':
     main()
