@@ -119,18 +119,15 @@ def main():
         console.log(f'Skin Classifier based on <adv> dataset')
         skin_clf = SkinClassifier(features, ds='adv', rebuild=False)
 
-        demo = False
+        demo(skin_clf)
 
-        if demo:
-            demo(skin_clf)
-        else:
-            proj_dir = Path(__file__).parent.parent
-            img = tools.imread_rgb(proj_dir / Path('test_data/OverExposedTest.jpg'))
-            preprocessed = preprocess(img)
-            mask = skin_clf._predict_mask(preprocessed)
-            postprocessed = postprocess(mask)
-            plot_imgs_and_masks([img], [mask], [preprocessed], [postprocessed], figure=1)
-            plt.show()
+        # proj_dir = Path(__file__).parent.parent
+        # img = tools.imread_rgb(proj_dir / Path('test_data/OverExposedTest.jpg'))
+        # preprocessed = preprocess(img)
+        # mask = skin_clf._predict_mask(preprocessed)
+        # postprocessed = postprocess(mask)
+        # plot_imgs_and_masks([img], [mask], [preprocessed], [postprocessed], figure=2)
+        # plt.show()
 
 
 

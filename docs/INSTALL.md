@@ -1,7 +1,7 @@
 # Installation
 
 ## Download
-Tramite questo [link]() potrete scaricare i file principali del progetto.
+Tramite questo [link]() è possibile scaricare i file principali del progetto.
 
 ## Creazione env
 Consigliamo, ma non è obbligatorio, creare un python env con tutte le dipendenze necessarie (all'interno la cartella del progetto).
@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 ## Download dataset
 
-Abbiamo disposto un file che automaticamente scarica il dataset e crea le path necessarie al funzionamento. Per eseguirlo usate:
+Abbiamo disposto un file che automaticamente scarica il dataset (~500MB) e crea le path necessarie al funzionamento. Per eseguirlo usate:
 
 ```
 python setup.py

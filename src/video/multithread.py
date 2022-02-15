@@ -48,13 +48,6 @@ q = queue.Queue()
 final = queue.Queue()
 skin_clf = None
 bg = None
-codenames = ["Michi", "Tia", "Ele",
-            "Wall-Maria", "Wall-Rose", "Wall-Sina", 
-            "Thor", "Loki", "Odin",
-            "BMO", "Jake", "Finn",
-            "Alien", "Kayo", 
-            "Meta"
-            ]
 
 bar = Progress(
         SpinnerColumn("dots"),
@@ -114,23 +107,24 @@ def init(filename, clf):
 
     # == Stampo informazioni task ==
     log = logging.getLogger('rich')
-    log.info("Video da processare: {}\n"
-             "Frame da processare: {}".format(filename, count))
+    log.info("Video source: {}\n"
+             "Frame count: {}".format(filename, count))
     #log.info("Frame da processare: {}".format(count))
 
     # == Acquisizione Backgroung ==
     #log.debug("Acquisisco background...")
-    bg = get_rgb_background(filename)
+    try:
+        bg = get_rgb_background(filename)
+    except:
+        log.critical("File not found!")
+        return
     #log.debug("Background acquisito!")
 
     # == Creazione Threads ==
     # nota: si possono aggiungere i nomi ai Threads (name = ...)
-    log.debug("Creo {} Threads".format(thread_count))
+    log.debug("Starting {} Threads".format(thread_count))
     for x in range(0, thread_count):
-        try:
-            t = threading.Thread(target=worker, name = codenames[x])
-        except:
-            t = threading.Thread(target=worker)
+        t = threading.Thread(target=worker)
         threads.append(t)
         t.start()
         #log.debug('Started: %s' % t)
@@ -141,6 +135,7 @@ def init(filename, clf):
         #log.debug("Metto ogni frame nella Queue (frame, index)")
         task2 = progress.add_task("[bold blue]Getting frames", total=count)
         task = progress.add_task("[bold green]Processing...", total=count)
+        
         cap = cv2.VideoCapture(filename)
         i = 0
         while True:
@@ -154,21 +149,24 @@ def init(filename, clf):
         # block until all tasks are done
         q.join()
 
-    # stop workers
-    for _ in threads:
-        q.put(None)
+        # stop workers
+        for _ in threads:
+            q.put(None)
 
-    for t in threads:
-        t.join()
+        for t in threads:
+            t.join()
     
 
-    # == Scrittura video output ==
-    j = 0
-    log.debug("Scrivo i frame in {}".format(out_filename))
-    while j!= count:
-        fr = get_ordered_frame(j)
-        out.write(fr)
-        j+=1
+        # == Scrittura video output ==
+        j = 0
+        #log.debug("Writing frames: {}".format(out_filename))
+    
+        task3 = progress.add_task("[bold yellow]Writing...", total=count)
+        while j!= count:
+            fr = get_ordered_frame(j)
+            out.write(fr)
+            progress.update(task3, advance=1)
+            j+=1
 
     # == Processo finito ==
     t2 = time.perf_counter()

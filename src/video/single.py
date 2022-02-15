@@ -45,12 +45,16 @@ def get_rgb_background(filename):
 
 def run(filename, skin_clf):
     t1 = time.perf_counter()
-
+    log = logging.getLogger('rich')
     no_suffix = filename.split(".m4v")[0]
     out_filename = f'{no_suffix}_processed.m4v'
     width, height, fps, count = get_video_details(filename)
 
-    bg = get_rgb_background(filename)
+    try:
+        bg = get_rgb_background(filename)
+    except:
+        log.critical("File non found!")
+        return
 
     cap = cv2.VideoCapture(filename)
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
@@ -78,5 +82,4 @@ def run(filename, skin_clf):
     cap.release()
     out.release()
     t2 = time.perf_counter()
-    log = logging.getLogger('rich')
     log.info(f'Finished in {t2-t1} seconds')
