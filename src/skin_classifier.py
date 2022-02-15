@@ -7,10 +7,10 @@ from rich.console import Console
 import classifier as classifier
 import dataset.basic as basic_dataset
 import dataset.vdm as vdm_dataset
-import tools.imgtools as tools
+import utils.imgtools as tools
 from preprocessing import preprocess
 from postprocessing import postprocess
-import stats
+import utils.stats as stats
 
 
 console = Console()
@@ -79,7 +79,7 @@ def demo(skin_clf):
     basic_gts = basic_dataset.get_test_gts()
 
     vdm_imgs, vdm_gts = vdm_dataset.get_imgs_and_gts()
-    reduced_data = list(zip(vdm_imgs, vdm_gts))[::20]
+    reduced_data = list(zip(vdm_imgs, vdm_gts))[::30]
     vdm_imgs, vdm_gts = zip(*reduced_data)
 
     test_imgs = list(basic_imgs) + list(vdm_imgs)
@@ -103,32 +103,19 @@ def demo(skin_clf):
     plt.show()
 
 
-
 def main():
     with stats.timer('Classifier build'):
-        # ----- SFA --------
-        features = ('G', 'H', 'CIEA')
-        # features = ('Cr', 'H', 'CIEA')      # max accuracy
-        # features = ('G', 'Cr', 'CIEA')      # max precision
-        # features = ('H', 'CIEA', 'CIEB')      # max accuracy DT
-        # ----- VDM --------
-        # features = ('G', 'CIEL', 'CIEA')      # vdm set
-        # features = ('G', 'Cr', 'CIEL', 'CIEA')   # vdm max precision/accuracy
-        # features = ('G', 'Cr', 'CIEA', 'CIEB')
+        dataset = 'adv'
+        # dataset = 'vdm'
+        if dataset == 'adv':
+            features = ('G', 'H', 'CIEA')
+        else:
+            features = ('G', 'CIEL', 'CIEA')
 
-        console.log(f'Skin Classifier based on <adv> dataset')
-        skin_clf = SkinClassifier(features, ds='adv', rebuild=False)
+        console.log(f'Skin Classifier based on <{dataset}> dataset')
+        skin_clf = SkinClassifier(features, ds=dataset, rebuild=True)
 
         demo(skin_clf)
-
-        # proj_dir = Path(__file__).parent.parent
-        # img = tools.imread_rgb(proj_dir / Path('test_data/OverExposedTest.jpg'))
-        # preprocessed = preprocess(img)
-        # mask = skin_clf._predict_mask(preprocessed)
-        # postprocessed = postprocess(mask)
-        # plot_imgs_and_masks([img], [mask], [preprocessed], [postprocessed], figure=2)
-        # plt.show()
-
 
 
 if __name__ == '__main__':

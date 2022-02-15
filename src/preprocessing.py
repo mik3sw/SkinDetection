@@ -1,6 +1,6 @@
-from tools.agc import adaptive_gamma_correction
-from tools.lbp import erase_colors, white_balance
-import tools.imgtools as imgtools
+from utils.agc import adaptive_gamma_correction
+from utils.lbp import erase_colors, white_balance
+import utils.imgtools as imgtools
 import configparser
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -8,9 +8,13 @@ import matplotlib.pyplot as plt
 
 def preprocess(image):
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    config_path = Path(__file__).parent.parent / Path('config.ini')
+    config.read(config_path)
     if config["preprocess"]["gamma_correction"] == "True":
-        image = adaptive_gamma_correction(image)
+        try:
+            image = adaptive_gamma_correction(image)
+        except Exception as e:
+            pass
     if config["preprocess"]["white_balance"] == "True":
         image = white_balance(image)
     
@@ -19,7 +23,7 @@ def preprocess(image):
     w = config["preprocess"]["erase_white"] == "True"
     o = config["preprocess"]["erase_orange"] == "True"
     
-    image = erase_colors(image, red=r, yellow=y, white=w, orange=o)
+    # image = erase_colors(image, red=r, yellow=y, white=w, orange=o)
     return image
 
 

@@ -14,7 +14,7 @@ import classifier
 import dataset.advanced as adv_dataset
 import dataset.vdm as vdm_dataset
 from skin_classifier import SkinClassifier
-import stats
+import utils.stats as stats
 
 
 console = Console()

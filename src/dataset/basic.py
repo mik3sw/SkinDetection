@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 
 import dataset.cache as cache
-import tools.imgtools as tools
+import utils.imgtools as tools
 
 
 dataset_dir = Path.cwd() / Path('Datasets/Basic_Skin_Dataset')

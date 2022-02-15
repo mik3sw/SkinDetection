@@ -1,7 +1,8 @@
 import logging
+from pathlib import Path
 import time
 import cv2
-import frame_processor
+import video.frame_processor as frame_processor
 from rich.progress import Progress
 from rich.progress import (
     BarColumn,
@@ -96,8 +97,9 @@ def init(filename, clf):
     thread_count = mp.cpu_count()
     
     # Nome/path del file
-    no_suffix = filename.split(".m4v")[0]
-    out_filename = f'{no_suffix}_processed.m4v'
+    suffix = Path(filename).suffix
+    no_suffix = filename.split(suffix)[0]
+    out_filename = f'{no_suffix}_processed{suffix}'
 
     # Video source, video out, video info
     width, height, fps, count = get_video_details(filename)

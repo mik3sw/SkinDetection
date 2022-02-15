@@ -4,7 +4,7 @@ from pickletools import uint8
 import numpy as np
 
 import dataset.cache as cache
-import tools.imgtools as tools
+import utils.imgtools as tools
 
 
 vdm_dataset_dir = Path.cwd() / Path('Datasets/VDM_Dataset')

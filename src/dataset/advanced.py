@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 import dataset.cache as cache
-import tools.imgtools as tools
+import utils.imgtools as tools
 
 
 adv_dataset_dir = Path.cwd() / Path('Datasets/Advanced_Skin_Dataset')

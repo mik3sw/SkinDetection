@@ -1,11 +1,9 @@
-#from lbp import fix_masks
 import cv2
 import numpy as np
 import configparser
-# from tools.lbp import adjust_mask, remove_contour
 from pathlib import Path
 import matplotlib.pyplot as plt
-import tools.imgtools as imgtools
+import utils.imgtools as imgtools
 
 
 
@@ -33,8 +31,6 @@ def remove_contour(mask, size, iteration_dilate):
     return mask
 
 
-
-
 def postprocess(mask):
     config = configparser.ConfigParser()
     config.read('config.ini')
@@ -45,7 +41,6 @@ def postprocess(mask):
     mask = remove_contour(mask, int(c/300), int(c/300))
     uint8_mask = np.uint8(mask)
     return uint8_mask
-
 
 
 def plot_masks_and_postprocessed(mask_postprocessed_pairs):

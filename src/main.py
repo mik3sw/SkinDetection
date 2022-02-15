@@ -1,5 +1,4 @@
 import argparse
-import configparser
 from pathlib import Path
 
 from rich.markdown import Markdown
@@ -20,7 +19,6 @@ __Partecipanti__
 2. Eleonora Cicalla    [851649]
 3. Michele Marcucci    [851905]
 '''
-
 
 sample_usages='''
 Sample usage:
@@ -56,24 +54,22 @@ def info_f():
 
 
 def main():
-    config = configparser.ConfigParser()
-    config.read('config.ini')
     args = parser.parse_args()
     filename = args.file
     multi = args.multi
     info = args.info
-    
-    
+
     if info:
         info_f()
         return
 
-    dataset = 'vdm'     # 'vdm' or 'adv'
+    dataset = 'adv'     # 'vdm' or 'adv'
+    # dataset = 'vdm'
     if dataset == 'vdm':
         features = ('G', 'Cr', 'CIEA', 'CIEB')
     else:
         features = ('G', 'H', 'CIEA')
-    skin_clf = SkinClassifier(features, ds=dataset, rebuild=True)
+    skin_clf = SkinClassifier(features, ds=dataset, rebuild=False)
     
     console.log(f'Using {dataset} dataset')
 
@@ -81,18 +77,18 @@ def main():
         console.log("Using camera as video source")
         try:
             cam.run(skin_clf)
-        except:
-            console.log("Camera not found")
+        except Exception as e:
+            console.log(f'Error, got: {e}')
     else:
-        if multi:
-            console.log("[bold green]Starting using threads[/]")
-            multithread.init(filename, skin_clf)
-        else:
-            if Path(filename).exists():
+        if Path(filename).exists():
+            if multi:
+                console.log("[bold green]Starting using threads[/]")
+                multithread.init(filename, skin_clf)
+            else:
                 console.log(f'Using {filename} as video source')
                 single.run(filename, skin_clf)
-            else:
-                console.log('File not found!')
+        else:
+            console.log('File not found!')
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from tools import lbp
+from utils.lbp import diff_mask
 
 
 def process_frame(skin_clf, img, bg):
@@ -9,7 +9,7 @@ def process_frame(skin_clf, img, bg):
 
     # Trovo la "pre-maschera" attraverso 
     # differenza tra sfondo e frame
-    canvas = lbp.diff_mask(rgb_img, bg)
+    canvas = diff_mask(rgb_img, bg)
 
     # Estraggo la maschera tramite il classificatore
     mask = skin_clf.extract_mask(canvas)
