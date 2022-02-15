@@ -11,7 +11,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-import frame_processor as process_frame
+import frame_processor
 
 
 
@@ -69,7 +69,7 @@ def run(filename, skin_clf):
         while True:
             ret, frame = cap.read()
             if ret:
-                bgr_skin_replaced = process_frame(skin_clf, frame, bg)
+                bgr_skin_replaced = frame_processor.process_frame(skin_clf, frame, bg)
                 out.write(bgr_skin_replaced)
                 progress.update(task, advance=1)
             else:

@@ -1,7 +1,7 @@
 import logging
 import time
 import cv2
-import frame_processor as process_frame
+import frame_processor
 from rich.progress import Progress
 from rich.progress import (
     BarColumn,
@@ -82,7 +82,7 @@ def do_sth(skin_clf, frame, bg):
     log = logging.getLogger('rich')
     #if (frame[1]+1)%10 == 0:
     #    log.debug("Frame: {}".format(frame[1]+1))
-    new_frame = process_frame(skin_clf, frame[0], bg)
+    new_frame = frame_processor.process_frame(skin_clf, frame[0], bg)
     final.put((new_frame, frame[1]))
     bar.update(task, advance=1)
     time.sleep(0.1)

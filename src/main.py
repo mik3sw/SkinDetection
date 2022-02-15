@@ -71,8 +71,8 @@ def main():
     if dataset == 'vdm':
         features = ('G', 'Cr', 'CIEA', 'CIEB')
     else:
-        features = ('H', 'CIEA', 'CIEB')
-    skin_clf = SkinClassifier(features, ds=dataset, rebuild=False)
+        features = ('G', 'H', 'CIEA')
+    skin_clf = SkinClassifier(features, ds=dataset, rebuild=True)
     
     console.log(f'Using {dataset} dataset')
 
@@ -84,7 +84,7 @@ def main():
             console.log("Camera not found")
     else:
         if multi:
-            console.log("[bold green]Starting using threads[/]", extra={"markup": True})
+            console.log("[bold green]Starting using threads[/]")
             multithread.init(filename, skin_clf)
         else:
             if Path(filename).exists():

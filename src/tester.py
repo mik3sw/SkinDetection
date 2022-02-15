@@ -57,7 +57,7 @@ def get_metrics(skin_clf, test_imgs, test_gts):
 
 def print_combo_item(item):
     features, score, metrics = item
-    print(f'Accuracy: {score:.5f}. Features: {features}')
+    print(f'Score: {score:.5f}. Features: {features}')
     for stat in metrics:
         if stat.name in ('sensitivity', 'specifity'):
             continue
@@ -142,8 +142,8 @@ def main():
         # 'LBP_ROR'
     )
 
-    dataset = 'vdm'
-    threshold = .85
+    dataset = 'adv'
+    threshold = .90
 
     all_features, labels = classifier.fetch_dataset(ds=dataset)
     if dataset == 'adv':
@@ -166,7 +166,7 @@ def main():
     vdm_imgs, vdm_gts = fetch_vdm_test_data(scaledown_factor=5)
 
     console.rule('Pre/Post Processing Setup')
-    console.log('No Preprocessing at all')
+    console.log('Full Processing Suite')
     console.rule()
 
     combos_metrics_sfa = []

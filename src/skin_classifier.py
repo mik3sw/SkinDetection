@@ -74,21 +74,7 @@ class SkinClassifier:
         return uint8_mask
 
 
-def main():
-    with stats.timer('Classifier build'):
-        # ----- SFA --------
-        # features = ('G', 'H', 'CIEA')
-        # features = ('Cr', 'H', 'CIEA')      # max accuracy
-        # features = ('G', 'Cr', 'CIEA')      # max precision
-        features = ('H', 'CIEA', 'CIEB')      # max accuracy DT
-        # ----- VDM --------
-        # features = ('G', 'CIEL', 'CIEA')      # vdm set
-        # features = ('G', 'Cr', 'CIEL', 'CIEA')   # vdm max precision/accuracy
-        # features = ('G', 'Cr', 'CIEA', 'CIEB')
-
-        console.log(f'Skin Classifier based on <adv> dataset')
-        skin_clf = SkinClassifier(features, ds='adv', rebuild=False)
-
+def demo(skin_clf):
     basic_imgs = basic_dataset.get_test_imgs()
     basic_gts = basic_dataset.get_test_gts()
 
@@ -115,6 +101,37 @@ def main():
     plot_imgs_and_masks(test_imgs, masks, 
         preprocessed_imgs, postprocessed_masks, figure=1)
     plt.show()
+
+
+
+def main():
+    with stats.timer('Classifier build'):
+        # ----- SFA --------
+        features = ('G', 'H', 'CIEA')
+        # features = ('Cr', 'H', 'CIEA')      # max accuracy
+        # features = ('G', 'Cr', 'CIEA')      # max precision
+        # features = ('H', 'CIEA', 'CIEB')      # max accuracy DT
+        # ----- VDM --------
+        # features = ('G', 'CIEL', 'CIEA')      # vdm set
+        # features = ('G', 'Cr', 'CIEL', 'CIEA')   # vdm max precision/accuracy
+        # features = ('G', 'Cr', 'CIEA', 'CIEB')
+
+        console.log(f'Skin Classifier based on <adv> dataset')
+        skin_clf = SkinClassifier(features, ds='adv', rebuild=False)
+
+        demo = False
+
+        if demo:
+            demo(skin_clf)
+        else:
+            proj_dir = Path(__file__).parent.parent
+            img = tools.imread_rgb(proj_dir / Path('test_data/OverExposedTest.jpg'))
+            preprocessed = preprocess(img)
+            mask = skin_clf._predict_mask(preprocessed)
+            postprocessed = postprocess(mask)
+            plot_imgs_and_masks([img], [mask], [preprocessed], [postprocessed], figure=1)
+            plt.show()
+
 
 
 if __name__ == '__main__':
