@@ -36,19 +36,19 @@ def fix_masks(image):
     return image
 
 
-def adjust_mask(mask, ellipse, iteration_dilate, iteration_erode):
+def adjust_mask(mask, size, iteration_dilate, iteration_erode):
     # esegue una dilate e una erode per eliminare dettagli come occhi ecc ecc
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ellipse, ellipse))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (size, size))
     mask = cv2.dilate(mask, kernel, iterations=iteration_dilate)
     mask = cv2.erode(mask, kernel, iterations=iteration_erode)
     mask = cv2.GaussianBlur(mask, (3, 3), 0)
     return mask
 
 
-def remove_contour(mask, ellipse, iteration_dilate):
+def remove_contour(mask, size, iteration_dilate):
     # effettua un'ulteriore dilate per eliminare quanto 
     # più possibile il "contorno" che si crea intorno alla maschera
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ellipse, ellipse))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (size, size))
     mask = cv2.dilate(mask, kernel, iterations=iteration_dilate)
     return mask
 

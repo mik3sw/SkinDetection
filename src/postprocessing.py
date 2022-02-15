@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
-import configparser
 from pathlib import Path
 import matplotlib.pyplot as plt
 import utils.imgtools as imgtools
+from utils.lbp import adjust_mask, remove_contour
 
 
 
@@ -17,23 +17,7 @@ def remove_mask_noise(mask, close_iter, open_iter):
     return mask
 
 
-def adjust_mask(mask, size, iteration_dilate, iteration_erode):
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (size, size))
-    mask = cv2.dilate(mask, kernel, iterations=iteration_dilate)
-    mask = cv2.erode(mask, kernel, iterations=iteration_erode)
-    mask = cv2.GaussianBlur(mask, (3, 3), 0)
-    return mask
-
-
-def remove_contour(mask, size, iteration_dilate):
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (size, size))
-    mask = cv2.dilate(mask, kernel, iterations=iteration_dilate)
-    return mask
-
-
 def postprocess(mask):
-    config = configparser.ConfigParser()
-    config.read('config.ini')
     mask = mask.astype(np.double)
     r, c = mask.shape
     mask = remove_mask_noise(mask, int(c/500), int(c/300))
