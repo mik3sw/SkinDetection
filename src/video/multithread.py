@@ -113,7 +113,11 @@ def init(filename, clf):
 
     # == Acquisizione Backgroung ==
     #log.debug("Acquisisco background...")
-    bg = get_rgb_background(filename)
+    try:
+        bg = get_rgb_background(filename)
+    except:
+        log.critical("File not found!")
+        return
     #log.debug("Background acquisito!")
 
     # == Creazione Threads ==
@@ -154,11 +158,14 @@ def init(filename, clf):
 
     # == Scrittura video output ==
     j = 0
-    log.debug("Writing frames: {}".format(out_filename))
-    while j!= count:
-        fr = get_ordered_frame(j)
-        out.write(fr)
-        j+=1
+    #log.debug("Writing frames: {}".format(out_filename))
+    with bar as progress:
+        task3 = progress.add_task("[bold yellow]Writing...", total=count)
+        while j!= count:
+            fr = get_ordered_frame(j)
+            out.write(fr)
+            progress.update(task3, advance=1)
+            j+=1
 
     # == Processo finito ==
     t2 = time.perf_counter()

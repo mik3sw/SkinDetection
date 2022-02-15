@@ -173,7 +173,7 @@ def diff_mask(img, bg):
     # più o meno in che regione del frame si trovano
     # le differenza tra frame e sfondo
     # Quindi verosimilmente dove si trova il soggetto del video
-    (T, thresh) = cv2.threshold(mask, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    (T, thresh) = cv2.threshold(mask, 50, 255, cv2.THRESH_BINARY)
 
     # Adesso facciamo una dilate molto pesante 
     # per cercare di avere una maschera il più
@@ -184,14 +184,15 @@ def diff_mask(img, bg):
     thresh = cv2.dilate(thresh, kernel, iterations=10)
 
     # Aggiustiamo la maschera con delle erode e blur
-    thresh = cv2.erode(thresh, kernel, iterations=5)
-    thresh = cv2.GaussianBlur(thresh, (3, 3), 0)
+    #thresh = cv2.erode(thresh, kernel, iterations=1)
+    #thresh = cv2.GaussianBlur(thresh, (3, 3), 0)
 
     # creo e ritorno la maschera a colori (RGB)
     th = 1
     imask =  thresh>th
     canvas = np.zeros_like(img, np.uint8)
     canvas[imask] = img[imask]
+    canvas = erase_colors(canvas, white=True)
     return canvas
 
 

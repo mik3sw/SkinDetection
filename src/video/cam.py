@@ -1,6 +1,6 @@
 import cv2
 from src.core import frame_processor
-import src
+
 
 
 def run(skin_clf):
