@@ -11,7 +11,10 @@ def preprocess(image):
     # esegue o meno certe operazioni di preprocessing
 
     if config["preprocess"]["gamma_correction"] == "True":
-        image = adaptive_gamma_correction(image)
+        try:
+            image = adaptive_gamma_correction(image)
+        except:
+            pass
     if config["preprocess"]["white_balance"] == "True":
         image = white_balance(image)
     

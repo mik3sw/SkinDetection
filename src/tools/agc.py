@@ -21,7 +21,10 @@ def plot_imgs_and_masks(imgs, processed, figure):
 '''
 
 def normalize_array(array):
-    normalized = (array - array.min()) / (array.max() - array.min())
+    if (array.max() - array.min()) != 0:
+        normalized = (array - array.min()) / (array.max() - array.min())
+    else:
+        normalized = array
     return normalized
 
 
@@ -62,7 +65,11 @@ def adaptive_gamma_correction(rgb_image):
     h, s, v = cv2.split(hsv_image)
     r, c = v.shape
     v_flat = np.reshape(hsv_image[:, :, -1], (r*c))
-    v_normalized = normalize_array(v_flat)
+    try:
+        v_normalized = normalize_array(v_flat)
+    except RuntimeWarning:
+        v_normalized = v_flat
+    
     mean = v_normalized.mean()
     std = v_normalized.std()
     d = (mean + 2*std) - (mean - 2*std)

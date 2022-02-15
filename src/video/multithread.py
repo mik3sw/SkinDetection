@@ -135,6 +135,7 @@ def init(filename, clf):
         #log.debug("Metto ogni frame nella Queue (frame, index)")
         task2 = progress.add_task("[bold blue]Getting frames", total=count)
         task = progress.add_task("[bold green]Processing...", total=count)
+        
         cap = cv2.VideoCapture(filename)
         i = 0
         while True:
@@ -148,18 +149,18 @@ def init(filename, clf):
         # block until all tasks are done
         q.join()
 
-    # stop workers
-    for _ in threads:
-        q.put(None)
+        # stop workers
+        for _ in threads:
+            q.put(None)
 
-    for t in threads:
-        t.join()
+        for t in threads:
+            t.join()
     
 
-    # == Scrittura video output ==
-    j = 0
-    #log.debug("Writing frames: {}".format(out_filename))
-    with bar as progress:
+        # == Scrittura video output ==
+        j = 0
+        #log.debug("Writing frames: {}".format(out_filename))
+    
         task3 = progress.add_task("[bold yellow]Writing...", total=count)
         while j!= count:
             fr = get_ordered_frame(j)
