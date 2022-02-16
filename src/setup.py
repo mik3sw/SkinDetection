@@ -89,27 +89,23 @@ if __name__ == "__main__":
         log.debug("Downloading Datasets.zip")
         download(file_id, zip_path)
         log.debug("Download complete!")
+        try:
+            log.debug("Unzipping dataset (this might take a while")
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall()
+            unzipped_path.rename(Path(__file__).parent.parent / Path('Datasets'))
+            log.debug("Unzipping complete!")
+            log.debug("Removing temporary files and folders (this may take a while)")
+            remove(zip_path)
+            try:
+                shutil.rmtree("__MACOSX")
+            except:
+                log.error("Not macOS, skipping")
+        except Exception as e:
+            log.critical(f'Errore durante unzipping: {e}')
     except Exception as e:
         log.critical(f"ERRORE durante il download: {e}")
-
-    try:
-        log.debug("Unzipping dataset (this might take a while")
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall()
-        unzipped_path.rename(Path(__file__).parent.parent / Path('Datasets'))
-        log.debug("Unzipping complete!")
-        log.debug("Removing temporary files and folders (this may take a while)")
-        # remove(zip_path)
-    except Exception as e:
-        log.critical(f'Errore durante unzipping: {e}')
-
-    try:
-        shutil.rmtree("__MACOSX")
-    except:
-        log.error("Not macOS, skipping")
 
     log.debug('Creating ".cache" folder..')
     cache_path.mkdir(parents=True, exist_ok=True)
     log.info("Done")
-    
-    
