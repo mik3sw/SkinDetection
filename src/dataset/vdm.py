@@ -7,7 +7,7 @@ import dataset.cache as cache
 import utils.imgtools as tools
 
 
-vdm_dataset_dir = Path.cwd() / Path('Datasets/VDM_Dataset')
+vdm_dataset_dir = Path(__file__).parent.parent.parent / Path('Datasets/VDM_Dataset')
 train = vdm_dataset_dir / Path('train')
 test_dir = vdm_dataset_dir / Path('test')
 

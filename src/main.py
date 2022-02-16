@@ -63,8 +63,8 @@ def main():
         info_f()
         return
 
-    dataset = 'adv'     # 'vdm' or 'adv'
-    # dataset = 'vdm'
+    # dataset = 'adv'     # 'vdm' or 'adv'
+    dataset = 'vdm'
     if dataset == 'vdm':
         features = ('G', 'Cr', 'CIEA', 'CIEB')
     else:

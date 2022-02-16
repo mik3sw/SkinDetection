@@ -6,7 +6,7 @@ import dataset.cache as cache
 import utils.imgtools as tools
 
 
-dataset_dir = Path.cwd() / Path('Datasets/Basic_Skin_Dataset')
+dataset_dir = Path(__file__).parent.parent.parent / Path('Datasets/Basic_Skin_Dataset')
 skin_path = dataset_dir / Path('skin.png')
 noskin_path = dataset_dir / Path('noskin.png')
 

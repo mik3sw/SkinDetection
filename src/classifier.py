@@ -67,7 +67,7 @@ def get_test_instance(clf, all_features, labels, feature_labels):
 
 
 def get_instance(feature_labels, rebuild=False, ds='basic'):
-    clf_path = Path(f'.cache/{ds}_classifier.joblib')
+    clf_path = Path(__file__).parent.parent / Path(f'.cache/{ds}_classifier.joblib')
     if rebuild or not clf_path.exists():
         console.log("Fetching dataset...")
         all_features, labels = fetch_dataset(ds)

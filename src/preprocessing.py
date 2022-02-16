@@ -23,7 +23,7 @@ def preprocess(image):
     w = config["preprocess"]["erase_white"] == "True"
     o = config["preprocess"]["erase_orange"] == "True"
     
-    # image = erase_colors(image, red=r, yellow=y, white=w, orange=o)
+    image = erase_colors(image, red=r, yellow=y, white=w, orange=o)
     return image
 
 
