@@ -7,5 +7,5 @@
 
 ## Quick start
 
-[INSTALL.md](docs/install.md)
+[INSTALL.md](docs/INSTALL.md)
 
