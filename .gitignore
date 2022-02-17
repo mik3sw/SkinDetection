@@ -10,7 +10,9 @@ tests/
 *.mov
 *.mp4
 *.m4v
-Dataset/
+Datasets/
 cache/*.pickle
 __MACOSX/
 .cache/
+test_data/
+InvisibleMan.pdf
