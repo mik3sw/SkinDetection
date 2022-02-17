@@ -1,9 +1,9 @@
-# Elaborazione Delle Immagini 
+# Human Skin Detection 
 
 ## 👥 AUTHORS 
-* [Mattia Napoli]()
-* [Michele Angelo Marcucci]()
-* [Eleonora Cicalla]()
+* [Mattia Napoli](https://github.com/MattiaDev)
+* [Michele Angelo Marcucci](https://github.com/mik3sw)
+* [Eleonora Cicalla](https://github.com/eleonoracicalla)
 
 ## Quick start
 
