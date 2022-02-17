@@ -13,3 +13,4 @@ tests/
 Dataset/
 cache/*.pickle
 __MACOSX/
+.cache/

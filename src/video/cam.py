@@ -1,5 +1,5 @@
 import cv2
-from src.core import frame_processor
+from video.frame_processor import process_frame
 
 
 
@@ -12,7 +12,7 @@ def run(skin_clf):
     while True:
         ret_val, img = cam.read()
         img = cv2.flip(img, 1)
-        bgr_skin_replaced = frame_processor.process_frame(skin_clf, img, bg)
+        bgr_skin_replaced = process_frame(skin_clf, img, bg)
         #bgr_skin_replaced = src.tools.lbp.diff_mask(img, bg)
         cv2.imshow('ESC to quit', bgr_skin_replaced)
         if cv2.waitKey(1) == 27: 

@@ -1,20 +1,24 @@
-import configparser
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+from pathlib import Path
 
-import src.classifier as classifier
-import src.data.basic as basic_dataset
-import src.tools.imgtools as tools
-from src.core.preprocessing import preprocess
-from src.core.postprocessing import postprocess
-import src.stats as stats
+from rich.console import Console
+
+import classifier as classifier
+import dataset.basic as basic_dataset
+import dataset.vdm as vdm_dataset
+import utils.imgtools as tools
+from preprocessing import preprocess
+from postprocessing import postprocess
+import utils.stats as stats
 
 
-def plot_imgs_and_masks(imgs, masks, preprocessed, figure):
-    import matplotlib.pyplot as plt
-    assert len(imgs) == len(masks), 'Each image must have a corresponding mask'
+console = Console()
+
+
+def plot_imgs_and_masks(imgs, masks, preprocessed, postprocessed, figure):
     cols = len(imgs)
-    rows = 3
+    rows = 4
     plt.figure(figure)
     for idx, img in enumerate(imgs):
         plt.subplot2grid((rows, cols), (0, idx))
@@ -25,19 +29,16 @@ def plot_imgs_and_masks(imgs, masks, preprocessed, figure):
     for idx, mask in enumerate(masks):
         plt.subplot2grid((rows, cols), (2, idx))
         plt.imshow(mask, 'gray')
+    for idx, mask in enumerate(postprocessed):
+        plt.subplot2grid((rows, cols), (3, idx))
+        plt.imshow(mask, 'gray')
 
 
 class SkinClassifier:
-    def __init__(self, features, clf=None, ds='adv'):
+    def __init__(self, features, clf=None, ds='adv', rebuild=True):
         self.features = features    # ('G', 'H', 'A*') for example
         if clf is None:
-            config = configparser.ConfigParser()
-            config.read('config.ini')
-            if config['classifier']['rebuild'] == 'True':
-                reb = True
-            else:
-                reb = False
-            self.clf = classifier.get_instance(features, rebuild=reb, ds=ds)
+            self.clf = classifier.get_instance(features, rebuild=rebuild, ds=ds)
         else:
             self.clf = clf
     
@@ -62,7 +63,8 @@ class SkinClassifier:
         features = np.hstack(chosen_features)
         labels = self.clf.predict(features)
         mask = labels.reshape((rows, cols))
-        return mask
+        uint8_mask = np.uint8(mask)
+        return uint8_mask
     
     def extract_mask(self, rgb_image):
         pre = preprocess(rgb_image)
@@ -72,34 +74,49 @@ class SkinClassifier:
         return uint8_mask
 
 
-def main():
-    import matplotlib.pyplot as plt
-    with stats.timer('Classifier build'):
-        # features = ('G', 'H', 'CIEA')
-        features = ('Cr', 'H', 'CIEA')      # max accuracy
-        # features = ('G', 'Cr', 'CIEA')      # max precision
-        # features = ('H', 'CIEL')      # max accuracy DT
-        features = ('G', 'CIEL', 'CIEA')      # vdm set
-        print(f'Skin Classifier based on <vdm> dataset')
-        skin_clf = SkinClassifier(features, ds='vdm')
+def demo(skin_clf):
+    basic_imgs = basic_dataset.get_test_imgs()
+    basic_gts = basic_dataset.get_test_gts()
 
-    test_imgs = basic_dataset.get_test_imgs()
+    vdm_imgs, vdm_gts = vdm_dataset.get_imgs_and_gts()
+    reduced_data = list(zip(vdm_imgs, vdm_gts))[::30]
+    vdm_imgs, vdm_gts = zip(*reduced_data)
+
+    test_imgs = list(basic_imgs) + list(vdm_imgs)
+    test_gts = list(basic_gts) + list(vdm_gts)
+
     preprocessed_imgs = [preprocess(img) for img in test_imgs]
-    masks = [skin_clf.extract_mask(img) for img in test_imgs]
+    masks = [skin_clf._predict_mask(img) for img in preprocessed_imgs]
+    postprocessed_masks = [postprocess(mask) for mask in masks]
 
-    test_gts = basic_dataset.get_test_gts()
-    cms = [stats.conf_matrix(mask, gt) for mask, gt in zip(masks, test_gts)]
+    cms = [stats.conf_matrix(mask, gt) for mask, gt in zip(postprocessed_masks, test_gts)]
     overall_stats = stats.get_overall_statistics(cms)
 
-    print(f'Statistic   =>  mean   | min    | max')
+    console.log(f'Statistic   =>  avg    | min    | max')
     for stat in overall_stats:
-        print(f'{stat.name:<11} =>  ', end='')
-        print(f'{stat.mean:.4f} | {stat.min:.4f} | {stat.max:.4f}')
+        stats_name = f'{stat.name:<11} =>  '
+        stats_values = f'{stat.mean:.4f} | {stat.min:.4f} | {stat.max:.4f}'
+        console.log(stats_name + stats_values)
 
-    plot_imgs_and_masks(test_imgs, masks, preprocessed_imgs, figure=1)
+    plot_imgs_and_masks(test_imgs, masks, 
+        preprocessed_imgs, postprocessed_masks, figure=1)
     plt.show()
+
+
+def main():
+    with stats.timer('Classifier build'):
+        dataset = 'adv'
+        # dataset = 'vdm'
+        if dataset == 'adv':
+            features = ('G', 'H', 'CIEA')
+        else:
+            features = ('G', 'CIEL', 'CIEA')
+
+        console.log(f'Skin Classifier based on <{dataset}> dataset')
+        skin_clf = SkinClassifier(features, ds=dataset, rebuild=True)
+
+        demo(skin_clf)
 
 
 if __name__ == '__main__':
     main()
-

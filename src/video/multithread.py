@@ -1,7 +1,8 @@
 import logging
+from pathlib import Path
 import time
 import cv2
-from src.core.frame_processor import process_frame
+import video.frame_processor as frame_processor
 from rich.progress import Progress
 from rich.progress import (
     BarColumn,
@@ -75,7 +76,7 @@ def do_sth(skin_clf, frame, bg):
     log = logging.getLogger('rich')
     #if (frame[1]+1)%10 == 0:
     #    log.debug("Frame: {}".format(frame[1]+1))
-    new_frame = process_frame(skin_clf, frame[0], bg)
+    new_frame = frame_processor.process_frame(skin_clf, frame[0], bg)
     final.put((new_frame, frame[1]))
     bar.update(task, advance=1)
     time.sleep(0.1)
@@ -96,8 +97,9 @@ def init(filename, clf):
     thread_count = mp.cpu_count()
     
     # Nome/path del file
-    no_suffix = filename.split(".m4v")[0]
-    out_filename = f'{no_suffix}_processed.m4v'
+    suffix = Path(filename).suffix
+    no_suffix = filename.split(suffix)[0]
+    out_filename = f'{no_suffix}_processed{suffix}'
 
     # Video source, video out, video info
     width, height, fps, count = get_video_details(filename)

@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 import time
 
 import cv2
@@ -11,7 +12,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from src.core.frame_processor import process_frame
+import video.frame_processor as frame_processor
 
 
 
@@ -46,8 +47,9 @@ def get_rgb_background(filename):
 def run(filename, skin_clf):
     t1 = time.perf_counter()
     log = logging.getLogger('rich')
-    no_suffix = filename.split(".m4v")[0]
-    out_filename = f'{no_suffix}_processed.m4v'
+    suffix = Path(filename).suffix
+    no_suffix = filename.split(suffix)[0]
+    out_filename = f'{no_suffix}_processed{suffix}'
     width, height, fps, count = get_video_details(filename)
 
     try:
@@ -73,7 +75,7 @@ def run(filename, skin_clf):
         while True:
             ret, frame = cap.read()
             if ret:
-                bgr_skin_replaced = process_frame(skin_clf, frame, bg)
+                bgr_skin_replaced = frame_processor.process_frame(skin_clf, frame, bg)
                 out.write(bgr_skin_replaced)
                 progress.update(task, advance=1)
             else:
